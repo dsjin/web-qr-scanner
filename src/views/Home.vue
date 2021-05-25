@@ -23,6 +23,9 @@
       <img :src="image">
       {{ qrCode.qrInfo.currentRawValue }}
     </div>
+    <detail-card
+      :info="detailInfo"
+    />
   </div>
 </template>
 
@@ -32,6 +35,7 @@ import { Options, Vue } from 'vue-class-component'
 
 import useCamera, { IUseCamera } from '@/composables/useCamera'
 import useQrCode from '@/composables/useQrCode'
+import DetailCard from '@/components/common/DetailCard.vue'
 
 const useHome = (camera: IUseCamera) => {
   const video : Ref<HTMLVideoElement | null> = ref(null)
@@ -54,10 +58,23 @@ const useHome = (camera: IUseCamera) => {
 }
 
 @Options({
+  components: {
+    DetailCard
+  },
   data () {
     return {
       canvas: null,
-      image: null
+      image: null,
+      detailInfo: {
+        qrcode: '',
+        show: false
+      }
+    }
+  },
+  watch: {
+    'qrCode.qrInfo.currentRawValue' (value) {
+      this.detailInfo.qrcode = value
+      this.detailInfo.show = true
     }
   },
   mounted () {
