@@ -32,7 +32,7 @@ export default function useCamera () : IUseCamera {
       })
       if (devices.value.length > 0) {
         const backCamera: MediaDeviceInfo | undefined = devices.value.find((device: MediaDeviceInfo) => {
-          return device.label.includes('front')
+          return device.label.includes('back')
         })
         selectedDevice.value = backCamera ? backCamera.deviceId : devices.value[0].deviceId
         stream.value = await navigator.mediaDevices.getUserMedia(
@@ -43,7 +43,7 @@ export default function useCamera () : IUseCamera {
           }
         )
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error(e)
       error.value = e
     }
@@ -70,7 +70,7 @@ export default function useCamera () : IUseCamera {
           }
         }
       )
-    } catch (e) {
+    } catch (e: any) {
       console.error(e)
       error.value = e
     }

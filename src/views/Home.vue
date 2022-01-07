@@ -1,6 +1,6 @@
 <template>
-  <div class="home">
-    <button
+  <div class="home h-screen overflow-hidden">
+    <!-- <button
       class="fixed left-10 bottom-1 bg-blue-300 p-2"
       @click="camera.changeCamera"
     >
@@ -11,18 +11,21 @@
       @click="takePhoto"
     >
       Capture
-    </button>
+    </button> -->
     <div
-      class="flex justify-center"
+      class="flex justify-center w-screen"
     >
-      <video id="video" />
+      <div
+        class="bg-gray-500 w-full h-full z-10 absolute bg-opacity-40"
+      />
+      <video id="video" class="w-screen"/>
     </div>
-    <div
+    <!-- <div
       class="flex justify-center mt-10"
     >
       <img :src="image">
       {{ qrCode.qrInfo.currentRawValue }}
-    </div>
+    </div> -->
     <detail-card
       :info="detailInfo"
     />
@@ -73,8 +76,16 @@ const useHome = (camera: IUseCamera) => {
   },
   watch: {
     'qrCode.qrInfo.currentRawValue' (value) {
-      this.detailInfo.qrcode = value
-      this.detailInfo.show = true
+      if (value) {
+        this.detailInfo.qrcode = value
+        this.detailInfo.show = true
+      }
+    },
+    'detailInfo.show' (value) {
+      if (!value) {
+        this.detailInfo.qrcode = ''
+        this.qrCode.qrInfo.currentRawValue = ''
+      }
     }
   },
   mounted () {

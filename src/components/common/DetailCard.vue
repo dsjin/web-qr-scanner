@@ -40,6 +40,7 @@ import { IDetailCard } from '@/assets/interface/detailCard'
   },
   methods: {
     close () {
+      this.info.qrcode = ''
       this.info.show = false
     }
   }

@@ -6,6 +6,6 @@ module.exports = {
       key: fs.readFileSync('./certs/server.key'),
       cert: fs.readFileSync('./certs/server.crt'),
     },
-    // public: 'https://localhost:8080/'
+    public: 'https://localhost:8080/'
   }
 }

@@ -19,11 +19,13 @@ export default function useQrCode (video: Ref<HTMLVideoElement | null>) : IUseQr
       const context = canvas.value.getContext('2d')
       canvas.value.width = 800
       canvas.value.height = 600
-      context!.drawImage(video.value, 0, 0, 800, 600)
-      const data = context!.getImageData(0, 0, 800, 600)
-      const code = jsQR(data.data, 800, 600)
-      if (code) {
-        currentRawValue.value = code.data
+      context?.drawImage(video.value, 0, 0, 800, 600)
+      const data = context?.getImageData(0, 0, 800, 600)
+      if (data) {
+        const code = jsQR(data.data, 800, 600)
+        if (code) {
+          currentRawValue.value = code.data
+        }
       }
     }
     if (loop.value) {
