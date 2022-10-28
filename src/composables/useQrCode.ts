@@ -1,11 +1,17 @@
 import jsQR from 'jsqr'
 import { ref, Ref } from 'vue'
 
+export interface IQrCodeHistory {
+  data: string,
+  timestamp: number
+}
+
 export interface IUseQrCode {
   qrInfo: {
     currentRawValue: Ref<string | null>,
     canvas: Ref<HTMLCanvasElement>,
-    loop: Ref<boolean>
+    loop: Ref<boolean>,
+    historyList: Ref<IQrCodeHistory[]>
   }
   scannerLoop: () => void
 }
@@ -14,6 +20,7 @@ export default function useQrCode (video: Ref<HTMLVideoElement | null>) : IUseQr
   const currentRawValue: Ref<string | null> = ref(null)
   const canvas: Ref<HTMLCanvasElement> = ref(document.createElement('canvas'))
   const loop: Ref<boolean> = ref(true)
+  const historyList: Ref<IQrCodeHistory[]> = ref([])
   const scannerLoop = () => {
     if (video.value) {
       const context = canvas.value.getContext('2d')
@@ -23,8 +30,15 @@ export default function useQrCode (video: Ref<HTMLVideoElement | null>) : IUseQr
       const data = context?.getImageData(0, 0, 800, 600)
       if (data) {
         const code = jsQR(data.data, 800, 600)
-        if (code) {
+        if (code && code.data) {
           currentRawValue.value = code.data
+          historyList.value.push(
+            {
+              data: code.data,
+              timestamp: new Date().getTime()
+            }
+          )
+          loop.value = false
         }
       }
     }
@@ -36,7 +50,8 @@ export default function useQrCode (video: Ref<HTMLVideoElement | null>) : IUseQr
     qrInfo: {
       currentRawValue,
       canvas,
-      loop
+      loop,
+      historyList
     },
     scannerLoop
   }
