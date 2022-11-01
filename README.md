@@ -1,24 +1,9 @@
-# web-qr-scanner
+# Web QR Scanner
 
-## Project setup
-```
-yarn install
-```
+## Details
 
-### Compiles and hot-reloads for development
-```
-yarn serve
-```
+QR Code Scanner Website made with the Vue.js Framework 
 
-### Compiles and minifies for production
-```
-yarn build
-```
+## Site Live on
+[qrcode.dsjin.co](https://qrcode.dsjin.co)
 
-### Lints and fixes files
-```
-yarn lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
