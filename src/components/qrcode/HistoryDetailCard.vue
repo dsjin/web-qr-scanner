@@ -15,24 +15,24 @@
       <h1
         class="mt-10 font-semibold text-6xl md:text-8xl text-white mix-blend-overlay"
       >
-        Result
+        History
       </h1>
-      <div class="p-10 bg-gray-500 text-2xl text-white my-20 divide-y divide-dashed h-1/2">
+      <div class="p-5 md:p-10 bg-gray-500 text-2xl text-white my-20 divide-y divide-dashed h-1/2">
         <template
           v-if="info.historyList.length > 0"
         >
           <div
             v-for="qrcode in info.historyList"
             :key="`${qrcode.data}-${qrcode.timestamp}`"
-            class="flex flex-row p-4 w-full"
+            class="flex flex-col md:flex-row p-4 w-full"
           >
             <p
-              class="flex-grow flex-initial w-3/5 text-left"
+              class="flex-grow flex-initial w-full md:w-3/5 text-left break-all"
             >
               {{ qrcode.data }}
             </p>
             <p
-              class="flex-grow flex-initial w-2/5"
+              class="flex-grow flex-initial w-full md:w-2/5 md:text-center text-right"
             >
               {{ utils.timestampToDateString(qrcode.timestamp) }}
             </p>

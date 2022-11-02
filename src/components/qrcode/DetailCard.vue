@@ -13,7 +13,7 @@
       class="container mx-auto px-4"
     >
       <h1
-        class="mt-10 font-semibold text-8xl text-white mix-blend-overlay"
+        class="mt-10 font-semibold text-6xl md:text-8xl text-white mix-blend-overlay"
       >
         Result
       </h1>

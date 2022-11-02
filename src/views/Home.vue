@@ -127,7 +127,7 @@ const useHome = (camera: IUseCamera) => {
       for (let index = 0; index < 30; index++) {
         this.historyInfo.historyList.push(
           {
-            data: `test-${index + 1}`,
+            data: `testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttest-${index + 1}`,
             timestamp: new Date().getTime() + (1000 * index)
           }
         )
