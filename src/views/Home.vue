@@ -122,7 +122,16 @@ const useHome = (camera: IUseCamera) => {
       this.image = data
     },
     historyOpen () {
-      this.historyInfo.historyList = this.qrCode.qrInfo.historyList
+      // this.historyInfo.historyList = this.qrCode.qrInfo.historyList
+      this.historyInfo.historyList = []
+      for (let index = 0; index < 30; index++) {
+        this.historyInfo.historyList.push(
+          {
+            data: `test-${index + 1}`,
+            timestamp: new Date().getTime() + (1000 * index)
+          }
+        )
+      }
       this.historyInfo.show = true
     }
   }
