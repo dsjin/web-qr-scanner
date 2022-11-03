@@ -10,6 +10,7 @@ export interface IUseCamera {
   initVideoDevice: () => Promise<void>
   stopTracks: () => void
   changeCamera: () => Promise<void>
+  changeCameraByDeviceId: (deviceId: string) => Promise<void>
 }
 
 export default function useCamera () : IUseCamera {
@@ -75,6 +76,28 @@ export default function useCamera () : IUseCamera {
       error.value = e
     }
   }
+  const changeCameraByDeviceId = async (deviceId: string) => {
+    try {
+      const targetDevice = devices.value.filter((device: MediaDeviceInfo) => {
+        return device.deviceId === deviceId
+      })
+      if (targetDevice.length === 0) {
+        return
+      }
+      stopTracks()
+      selectedDevice.value = targetDevice[0].deviceId
+      stream.value = await navigator.mediaDevices.getUserMedia(
+        {
+          video: {
+            deviceId: { exact: selectedDevice.value }
+          }
+        }
+      )
+    } catch (e: any) {
+      console.error(e)
+      error.value = e
+    }
+  }
   onMounted(() => {
     initVideoDevice()
   })
@@ -90,6 +113,7 @@ export default function useCamera () : IUseCamera {
     },
     initVideoDevice,
     stopTracks,
-    changeCamera
+    changeCamera,
+    changeCameraByDeviceId
   }
 }

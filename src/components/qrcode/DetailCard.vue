@@ -17,7 +17,7 @@
       >
         Result
       </h1>
-      <p class="p-10 bg-gray-500 text-2xl text-white mt-20">
+      <p class="p-10 bg-gray-500 text-2xl text-white my-10 md:my-20">
         {{ info.qrcode }}
       </p>
     </div>

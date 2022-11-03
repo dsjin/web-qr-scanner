@@ -1,13 +1,15 @@
-import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
+import { createRouter, RouteRecordRaw, createWebHistory } from 'vue-router'
 import Home from '../views/Home.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
     name: 'Home',
-    component: Home
+    component: Home,
+    meta: {
+      title: 'QR Scanner | DSJIN'
+    }
   }
-  // },
   // {
   //   path: '/about',
   //   name: 'About',
@@ -19,8 +21,13 @@ const routes: Array<RouteRecordRaw> = [
 ]
 
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory(),
   routes
+})
+
+router.beforeEach((to, from, next) => {
+  document.title = to.meta.title as string
+  next()
 })
 
 export default router
