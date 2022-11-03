@@ -15,33 +15,26 @@
       <h1
         class="mt-10 font-semibold text-6xl md:text-8xl text-white mix-blend-overlay"
       >
-        History
+        Camera
       </h1>
-      <div class="p-5 md:p-10 bg-gray-500 text-2xl text-white my-10 md:my-20 divide-y divide-dashed h-1/2">
+      <div class="p-5 md:p-10 bg-gray-500 text-2xl text-white my-10 md:my-20 h-1/2">
         <template
-          v-if="info.historyList.length > 0"
+          v-if="info.deviceList.length > 0"
         >
           <div
-            v-for="qrcode in info.historyList"
-            :key="`${qrcode.data}-${qrcode.timestamp}`"
-            class="flex flex-col md:flex-row p-4 w-full"
+            v-for="device, index in info.deviceList"
+            :key="device.deviceId"
+            class="p-4 w-full rounded-full cursor-pointer truncate"
+            :class="{'bg-red-400': device.deviceId !== info.nextSelectedDeviceId, 'bg-red-600': device.deviceId === info.nextSelectedDeviceId, 'mb-4': index !== info.deviceList.length - 1}"
+            @click="selectCamera(device.deviceId)"
           >
-            <p
-              class="flex-grow flex-initial w-full md:w-3/5 text-left break-all"
-            >
-              {{ qrcode.data }}
-            </p>
-            <p
-              class="flex-grow flex-initial w-full md:w-2/5 md:text-center text-right"
-            >
-              {{ utils.timestampToDateString(qrcode.timestamp) }}
-            </p>
+            {{ device.label }}
           </div>
         </template>
         <template
           v-else
         >
-          No History
+          No Device
         </template>
       </div>
     </div>
@@ -51,27 +44,30 @@
 <script lang="ts">
 import { PropType } from 'vue'
 import { Options, Vue } from 'vue-class-component'
-import { IHistoryDetailCard } from '@/assets/interface/historyDetailCard'
-import useUtils from '@/composables/useUtils'
+import { ISelectDeviceCard } from '@/assets/interface/selectDeviceCard'
 
 @Options({
   props: {
     info: {
-      type: Object as PropType<IHistoryDetailCard>,
+      type: Object as PropType<ISelectDeviceCard>,
       require: true
     }
   },
   computed: {
   },
   methods: {
+    selectCamera (cameraId: string) {
+      this.info.nextSelectedDeviceId = cameraId
+    },
     close () {
-      this.info.historyList = []
+      if (this.info.nextSelectedDeviceId !== this.info.selectedDeviceId) {
+        this.$emit('onChangeCamera', this.info.nextSelectedDeviceId)
+      }
       this.info.show = false
     }
   }
 })
-export default class HistoryDetailCard extends Vue {
-  utils = useUtils()
+export default class SelectCameraCard extends Vue {
 }
 </script>
 
