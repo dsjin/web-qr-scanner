@@ -43,6 +43,8 @@ import { Options, Vue } from 'vue-class-component'
 
 import useCamera, { IUseCamera } from '@/composables/useCamera'
 import useQrCode from '@/composables/useQrCode'
+import useIndexedDb from '@/composables/useIndexedDb'
+import useScanningQrCodeObjectStore from '@/composables/useScanningQrCodeObjectStore'
 import DetailCard from '@/components/qrcode/DetailCard.vue'
 import HistoryDetailCard from '@/components/qrcode/HistoryDetailCard.vue'
 import SelectCameraCard from '@/components/qrcode/SelectCameraCard.vue'
@@ -135,9 +137,9 @@ const useHome = (camera: IUseCamera) => {
       var data = this.canvas.toDataURL('image/png')
       this.image = data
     },
-    historyOpen () {
+    async historyOpen () {
       this.qrCode.qrInfo.loop = false
-      this.historyInfo.historyList = this.qrCode.qrInfo.historyList
+      this.historyInfo.historyList = await this.scanningQrCodeObjectStore.getAllScanningQrCode()
       this.historyInfo.show = true
     },
     selectCameraOpen () {
@@ -150,9 +152,11 @@ const useHome = (camera: IUseCamera) => {
   }
 })
 export default class Home extends Vue {
+  indexDb = useIndexedDb()
+  scanningQrCodeObjectStore = useScanningQrCodeObjectStore(this.indexDb.db)
   camera = useCamera()
   home = useHome(this.camera)
-  qrCode = useQrCode(this.home.homeInfo.video)
+  qrCode = useQrCode(this.home.homeInfo.video, this.scanningQrCodeObjectStore)
 }
 </script>
 
