@@ -4,7 +4,7 @@ export interface IUseIndexedDb {
   db: Ref<IDBDatabase | null>
 }
 
-export default function useIndexedDb(): IUseIndexedDb {
+export default function useIndexedDb (): IUseIndexedDb {
   const db: Ref<IDBDatabase | null> = ref(null)
   const initDb = () => {
     if (window) {
