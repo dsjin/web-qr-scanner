@@ -18,7 +18,7 @@ export default function useIndexedDb(): IUseIndexedDb {
       request.onerror = (ev: any) => {
         console.error(`Database error: ${ev.target.errorCode}`)
       }
-      request.onblocked = (ev: any) => {
+      request.onblocked = () => {
         console.log('Please close all other tabs with this site open!')
       }
       request.onupgradeneeded = (ev: any) => {
