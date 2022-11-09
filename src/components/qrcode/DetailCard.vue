@@ -41,18 +41,18 @@
             Copy
           </p>
         </div>
-        <div
+        <a
           v-if="utils.isUrl(info.qrcode)"
           class="text-white font-bold text-md rounded-full h-10 md:w-26 w-auto p-3 bg-gray-900 flex items-center justify-center cursor-pointer"
+          :href="info.qrcode"
+          target="_blank"
         >
-          <a
+          <p
             class="truncate"
-            :href="info.qrcode"
-            target="_blank"
           >
             Open Link
-          </a>
-        </div>
+          </p>
+        </a>
       </div>
     </div>
   </div>
