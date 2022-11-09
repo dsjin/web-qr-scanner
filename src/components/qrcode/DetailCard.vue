@@ -20,6 +20,40 @@
       <p class="p-10 bg-gray-500 text-2xl text-white my-10 md:my-20">
         {{ info.qrcode }}
       </p>
+      <div
+        class="flex flex-col md:flex-row md:justify-end"
+      >
+        <div
+          v-if="utils.canShare(info.qrcode)"
+          class="text-white font-bold text-md rounded-full h-10 md:w-24 w-auto p-3 bg-gray-900 flex items-center justify-center cursor-pointer md:mr-4 mb-4 md:mt-0"
+          @click="utils.share(info.qrcode)"
+        >
+          <p
+            class="truncate"
+          >
+            Share
+          </p>
+        </div>
+        <div class="text-white font-bold text-md rounded-full h-10 md:w-24 mw-auto p-3 bg-gray-900 flex items-center justify-center cursor-pointer md:mr-4 mb-4 md:mt-0" @click="utils.copyToClipboard(info.qrcode)">
+          <p
+            class="truncate"
+          >
+            Copy
+          </p>
+        </div>
+        <div
+          v-if="utils.isUrl(info.qrcode)"
+          class="text-white font-bold text-md rounded-full h-10 md:w-26 w-auto p-3 bg-gray-900 flex items-center justify-center cursor-pointer"
+        >
+          <a
+            class="truncate"
+            :href="info.qrcode"
+            target="_blank"
+          >
+            Open Link
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -28,6 +62,7 @@
 import { PropType } from 'vue'
 import { Options, Vue } from 'vue-class-component'
 import { IDetailCard } from '@/assets/interface/detailCard'
+import useUtils from '@/composables/useUtils'
 
 @Options({
   props: {
@@ -46,6 +81,7 @@ import { IDetailCard } from '@/assets/interface/detailCard'
   }
 })
 export default class DetailCard extends Vue {
+  utils = useUtils()
 }
 </script>
 
