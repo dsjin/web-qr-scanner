@@ -144,13 +144,7 @@ const useHome = (camera: IUseCamera) => {
     },
     async historyOpen () {
       this.qrCode.qrInfo.loop = false
-      // this.historyInfo.historyList = await this.scanningQrCodeObjectStore.getAllScanningQrCode()
-      this.historyInfo.historyList = [
-        {
-          data: 'Test',
-          timestamp: new Date().getTime()
-        }
-      ]
+      this.historyInfo.historyList = await this.scanningQrCodeObjectStore.getAllScanningQrCode()
       this.historyInfo.show = true
     },
     selectCameraOpen () {
