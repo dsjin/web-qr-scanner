@@ -9,9 +9,9 @@ QR Code Scanner Website made with the Vue.js Framework
 
 ## Progresses [^1]
 
-- [ ] Implement Scanning functionality & UI -> ongoing
+- [X] Implement Scanning functionality & UI
 - - [X] Scanning functionality
-- - [ ] Result display ui -> ongoing
+- - [X] Result display ui
 - [ ] Implement local database -> ongoing
 - - [X] Scanning
 - - [ ] Generating
