@@ -1,3 +1,5 @@
+import useEmitter from './useEmitter'
+
 export interface IUseUtils {
   timestampToDateString: (val: number) => any
   isUrl: (val: string) => boolean
@@ -7,6 +9,7 @@ export interface IUseUtils {
 }
 
 export default function useUtils (): IUseUtils {
+  const emitter = useEmitter()
   const timestampToDateString = (val: number): any => {
     const targetDate = new Date(val)
     if (!val || targetDate.toString() === 'Invalid Date') {
@@ -25,7 +28,15 @@ export default function useUtils (): IUseUtils {
   const copyToClipboard = async (val: string): Promise<boolean> => {
     try {
       await navigator.clipboard.writeText(val)
+      emitter.emit('$alert-popup:msg', 'Copied')
+      emitter.emit('$alert-popup:bgColor', 'bg-green-500')
+      emitter.emit('$alert-popup:timeout', 3000)
+      emitter.emit('$alert-popup:show')
     } catch {
+      emitter.emit('$alert-popup:msg', 'Copying Failed')
+      emitter.emit('$alert-popup:bgColor', 'bg-red-500')
+      emitter.emit('$alert-popup:timeout', 3000)
+      emitter.emit('$alert-popup:show')
       return false
     }
     return true
@@ -43,7 +54,15 @@ export default function useUtils (): IUseUtils {
       await navigator.share({
         text: val
       })
+      emitter.emit('$alert-popup:msg', 'Shared')
+      emitter.emit('$alert-popup:bgColor', 'bg-green-500')
+      emitter.emit('$alert-popup:timeout', 3000)
+      emitter.emit('$alert-popup:show')
     } catch {
+      emitter.emit('$alert-popup:msg', 'Sharing Failed')
+      emitter.emit('$alert-popup:bgColor', 'bg-red-500')
+      emitter.emit('$alert-popup:timeout', 3000)
+      emitter.emit('$alert-popup:show')
       return false
     }
     return true
