@@ -3,8 +3,23 @@
     <router-link to="/">Home</router-link> |
     <router-link to="/about">About</router-link>
   </div> -->
-  <router-view/>
+  <router-view />
+  <alert-popup />
 </template>
+
+<script lang="ts">
+import { Options, Vue } from 'vue-class-component'
+import AlertPopup from '@/components/common/AlertPopup.vue'
+
+@Options({
+  components: {
+    AlertPopup
+  }
+})
+
+export default class App extends Vue {
+}
+</script>
 
 <style lang="scss">
 #app {
