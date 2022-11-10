@@ -6,9 +6,6 @@
       <template v-if="!camera.cameraInfo.error">
         <video id="video" class="w-full h-full absolute left-1/2 object-cover object-center" style="margin-left: -50%"/>
       </template>
-      <template v-else>
-        {{ camera.cameraInfo.error }}
-      </template>
       <div class="absolute left-4 top-4 text-white font-bold text-md rounded-full h-10 w-24 md:w-auto p-3 bg-gray-900 flex items-center justify-center cursor-pointer z-9" @click="selectCameraOpen">
         <p
           class="truncate"
@@ -96,6 +93,14 @@ const useHome = (camera: IUseCamera) => {
     }
   },
   watch: {
+    'camera.cameraInfo.error' (value) {
+      if (value) {
+        this.emitter.emit('$alert-popup:msg', 'Failed to initialize the camera.')
+        this.emitter.emit('$alert-popup:bgColor', 'bg-red-500')
+        this.emitter.emit('$alert-popup:timeout', 0)
+        this.emitter.emit('$alert-popup:show')
+      }
+    },
     'qrCode.qrInfo.currentRawValue' (value) {
       if (value) {
         this.detailInfo.qrcode = value
@@ -139,7 +144,13 @@ const useHome = (camera: IUseCamera) => {
     },
     async historyOpen () {
       this.qrCode.qrInfo.loop = false
-      this.historyInfo.historyList = await this.scanningQrCodeObjectStore.getAllScanningQrCode()
+      // this.historyInfo.historyList = await this.scanningQrCodeObjectStore.getAllScanningQrCode()
+      this.historyInfo.historyList = [
+        {
+          data: 'Test',
+          timestamp: new Date().getTime()
+        }
+      ]
       this.historyInfo.show = true
     },
     selectCameraOpen () {

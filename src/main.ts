@@ -4,5 +4,9 @@ import './registerServiceWorker'
 import router from './router'
 import store from './store'
 import '@/assets/css/tailwind.css'
+import mitt from 'mitt'
 
-createApp(App).use(store).use(router).mount('#app')
+const emitter = mitt()
+const app = createApp(App)
+app.config.globalProperties.emitter = emitter
+app.use(store).use(router).mount('#app')
