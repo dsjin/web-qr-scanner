@@ -15,7 +15,7 @@ export default function useUtils (): IUseUtils {
     if (!val || targetDate.toString() === 'Invalid Date') {
       return val
     }
-    return `${targetDate.getFullYear()}/${('0' + targetDate.getMonth() + 1).slice(-2)}/${('0' + targetDate.getDay()).slice(-2)} ${('0' + targetDate.getHours()).slice(-2)}:${('0' + targetDate.getMinutes()).slice(-2)}:${('0' + targetDate.getSeconds()).slice(-2)}`
+    return `${targetDate.getFullYear()}/${(`0${targetDate.getMonth() + 1}`).slice(-2)}/${(`0${targetDate.getDate()}`).slice(-2)} ${(`0${targetDate.getHours()}`).slice(-2)}:${(`0${targetDate.getMinutes()}`).slice(-2)}:${(`0${targetDate.getSeconds()}`).slice(-2)}`
   }
   const isUrl = (val: string): boolean => {
     try {
