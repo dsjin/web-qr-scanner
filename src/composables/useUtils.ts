@@ -1,11 +1,15 @@
 import useEmitter from './useEmitter'
 
+export type DebouncingFunction = (...args: any[]) => void
+export type DebouncedFunction = (...args: any[]) => void
+
 export interface IUseUtils {
   timestampToDateString: (val: number) => any
   isUrl: (val: string) => boolean
   copyToClipboard: (val: string) => Promise<boolean>
   canShare: (val: string) => boolean
   share: (val: string) => Promise<boolean>
+  debounce: (fn: DebouncingFunction, delay: number) => DebouncedFunction
 }
 
 export default function useUtils (): IUseUtils {
@@ -67,11 +71,21 @@ export default function useUtils (): IUseUtils {
     }
     return true
   }
+  const debounce = (fn: DebouncingFunction, delay: number): DebouncedFunction => {
+    let executedFucntion: number;
+    return (...args: any[]) => {
+      clearTimeout(executedFucntion)
+      executedFucntion = setTimeout(() => {
+        fn(...args)
+      }, delay)
+    }
+  }
   return {
     timestampToDateString,
     isUrl,
     copyToClipboard,
     canShare,
-    share
+    share,
+    debounce
   }
 }
