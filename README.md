@@ -16,6 +16,8 @@ QR Code Scanner Website made with the Vue.js Framework
 - - [X] Scanning
 - - [ ] Generating
 - [ ] Implement PWA
-- [ ] Implement Qr Generating functionality & UI
+- [ ] Implement Qr Generating functionality & UI -> ongoing
+- - [ ] Scanning functionality -> ongoing
+- - [ ] Result display ui
 
 [^1]: Blank without the ongoing label -> Unimplemented Progress
