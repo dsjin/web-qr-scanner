@@ -1,11 +1,18 @@
 import jsQR from 'jsqr'
 import { ref, Ref } from 'vue'
+import QRcode, { QRCodeOptions, QRCodeToDataURLOptions, QRCodeToStringOptions } from 'qrcode'
 import { IUseScanningQrCodeObjectStore } from './useScanningQrCodeObjectStore'
 
 export interface IQrCodeHistory {
   data: string,
   timestamp: number
 }
+
+const defaultOptions = {
+  errorCorrectionLevel: 'H',
+  quality: 1,
+  margin: 1
+} as QRCodeOptions
 
 export interface IUseQrCode {
   qrInfo: {
@@ -14,6 +21,8 @@ export interface IUseQrCode {
     loop: Ref<boolean>
   }
   scannerLoop: () => void
+  getSVGElementQrcode: (data: string, options?: QRCodeToStringOptions) => Promise<string>
+  getImageDataQrCode: (data: string, options?: QRCodeToDataURLOptions) => Promise<string>
 }
 
 export default function useQrCode (video: Ref<HTMLVideoElement | null>, scanningQrCodeObjectStore: IUseScanningQrCodeObjectStore) : IUseQrCode {
@@ -45,12 +54,44 @@ export default function useQrCode (video: Ref<HTMLVideoElement | null>, scanning
       window.requestAnimationFrame(scannerLoop)
     }
   }
+  const getSVGElementQrcode = async (data: string, options: QRCodeToStringOptions = {}) : Promise<string> => {
+    return new Promise((resolve, reject) => {
+      QRcode.toString(data, {
+        ...defaultOptions,
+        type: 'svg',
+        ...options
+      }, (error, result) => {
+        if (error) {
+          reject(error)
+          return
+        }
+        resolve(result)
+      })
+    })
+  }
+  const getImageDataQrCode = async (data: string, options: QRCodeToDataURLOptions = {}) : Promise<string> => {
+    return new Promise((resolve, reject) => {
+      QRcode.toDataURL(data, {
+        ...defaultOptions,
+        type: 'image/webp',
+        ...options
+      }, (error, result) => {
+        if (error) {
+          reject(error)
+          return
+        }
+        resolve(result)
+      })
+    })
+  }
   return {
     qrInfo: {
       currentRawValue,
       canvas,
       loop
     },
-    scannerLoop
+    scannerLoop,
+    getSVGElementQrcode,
+    getImageDataQrCode
   }
 }

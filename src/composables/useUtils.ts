@@ -72,7 +72,7 @@ export default function useUtils (): IUseUtils {
     return true
   }
   const debounce = (fn: DebouncingFunction, delay: number): DebouncedFunction => {
-    let executedFucntion: number;
+    let executedFucntion: number
     return (...args: any[]) => {
       clearTimeout(executedFucntion)
       executedFucntion = setTimeout(() => {
