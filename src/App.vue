@@ -5,15 +5,18 @@
   </div> -->
   <router-view />
   <alert-popup />
+  <navi-bar />
 </template>
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component'
 import AlertPopup from '@/components/common/AlertPopup.vue'
+import NaviBar from '@/components/common/NaviBar.vue'
 
 @Options({
   components: {
-    AlertPopup
+    AlertPopup,
+    NaviBar
   }
 })
 
