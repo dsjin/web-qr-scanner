@@ -1,7 +1,10 @@
 import useEmitter from './useEmitter'
 
 export type DebouncingFunction = (...args: any[]) => void
-export type DebouncedFunction = (...args: any[]) => void
+export type DebouncedFunction = {
+  (...args: any[]): void,
+  clear(): void
+}
 
 export interface IUseUtils {
   timestampToDateString: (val: number) => any
@@ -73,12 +76,16 @@ export default function useUtils (): IUseUtils {
   }
   const debounce = (fn: DebouncingFunction, delay: number): DebouncedFunction => {
     let executedFucntion: number
-    return (...args: any[]) => {
+    const wrappedFn = (...args: any[]) => {
       clearTimeout(executedFucntion)
       executedFucntion = setTimeout(() => {
         fn(...args)
       }, delay)
     }
+    wrappedFn.clear = () => {
+      clearTimeout(executedFucntion)
+    }
+    return wrappedFn
   }
   return {
     timestampToDateString,

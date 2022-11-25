@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex justify-center absolute w-full bottom-0 left-0 right-0 z-20"
+    class="flex justify-center fixed w-full bottom-0 left-0 right-0 z-20"
   >
     <div
       class="flex w-full md:w-min mb-0 md:mb-5 p-4 transition-opacity rounded-none md:rounded-full shadow-lg bg-gray-900 text-white"
