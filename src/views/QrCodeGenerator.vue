@@ -10,7 +10,7 @@
     >
       <div
         v-if="qrCodeGenerator.qrCodeSvg || qrCodeGenerator.isProcessing"
-        class="bg-white w-96 h-96 rounded-md shadow-xl my-10"
+        class="bg-white w-96 h-96 rounded-md shadow-xl mt-10 mb-5"
       >
         <div
           v-if="qrCodeGenerator.isProcessing"
@@ -57,6 +57,49 @@
           v-html="qrCodeGenerator.qrCodeSvg"
         />
       </div>
+      <div
+        v-if="qrCodeGenerator.qrCodeSvg && !qrCodeGenerator.isProcessing"
+        class="flex justify-end w-96 flex-grow flex-initial"
+      >
+        <div
+          class="text-white font-bold text-md rounded-full h-10 w-10 bg-gray-900 flex items-center justify-center cursor-pointer"
+          @click="qrCodeGenerator.toggleShowAction"
+        >
+          <template
+            v-if="!qrCodeGenerator.showAction"
+          >
+            ▼
+          </template>
+          <template
+            v-else
+          >
+            ▲
+          </template>
+        </div>
+      </div>
+      <div
+        v-if="qrCodeGenerator.showAction && qrCodeGenerator.qrCodeSvg && !qrCodeGenerator.isProcessing"
+        class="flex flex-col w-full md:w-96 mt-4"
+      >
+        <div
+          v-if="qrCodeGenerator.isCanShareQrcode"
+          class="text-white font-bold text-md rounded-full h-10 w-auto p-3 bg-gray-900 flex items-center justify-center cursor-pointer mb-4"
+          @click="qrCodeGenerator.shareQrcode"
+        >
+          <p
+            class="truncate"
+          >
+            Share
+          </p>
+        </div>
+        <div class="text-white font-bold text-md rounded-full h-10 w-auto p-3 bg-gray-900 flex items-center justify-center cursor-pointer mb-4" @click="qrCodeGenerator.saveQrcode">
+          <p
+            class="truncate"
+          >
+            Save
+          </p>
+        </div>
+      </div>
       <label for="qrcode-textarea" class="w-full md:w-2/5 text-left text-white p-2 text-xl md:text-2xl">
         Input Data
       </label>
@@ -76,14 +119,61 @@ import useUtils, { IUseUtils } from '@/composables/useUtils'
 import useQrCode, { IUseQrCode } from '@/composables/useQrCode'
 import { QRCodeToStringOptions } from 'qrcode'
 
+interface ShareData {
+  files?: File[]
+  text?: string
+  title?: string
+  url?: string
+}
+
 const useQrCodeGenerator = (utils: IUseUtils, qrCode: IUseQrCode) => {
   const qrCodeSvg: Ref<string> = ref('')
   const qrCodeData: Ref<string> = ref('')
   const isProcessing: Ref<boolean> = ref(false)
+  const showAction: Ref<boolean> = ref(false)
+  const isCanShareQrcode: Ref<boolean> = ref(false)
   const debouncedGetSVGElementQrcode: {
     (data: string, options?: QRCodeToStringOptions, cb?: (result: string) => void): void
     clear(): void
   } = utils.debounce(qrCode.getSVGElementQrcode, 1000)
+  const toggleShowAction = () => {
+    showAction.value = !showAction.value
+  }
+  const getQrcodeShareObject = async (): Promise<ShareData> => {
+    const qrCodeBase64 = await qrCode.pGetImageDataQrCode(qrCodeData.value, {
+      scale: 50
+    })
+    const qrCodeBlob = await utils.getBlob(qrCodeBase64)
+    const file = new File([qrCodeBlob], `qrcode-${new Date().getTime()}.webp`, { type: qrCodeBlob.type })
+    return {
+      title: 'Share Qrcode',
+      files: [
+        file
+      ]
+    }
+  }
+  const canShareQrcode = async () => {
+    return utils.canShare(await getQrcodeShareObject())
+  }
+  const shareQrcode = async () => {
+    await utils.share(await getQrcodeShareObject())
+  }
+  const saveQrcode = async () => {
+    const link = document.createElement('a')
+    document.body.appendChild(link)
+    link.setAttribute('type', 'hidden')
+    link.href = await qrCode.pGetImageDataQrCode(qrCodeData.value, {
+      scale: 50
+    })
+    link.download = `qrcode-${new Date().getTime()}.webp`
+    link.click()
+    document.body.removeChild(link)
+  }
+  watch(showAction, async (value: boolean) => {
+    if (value) {
+      isCanShareQrcode.value = await canShareQrcode()
+    }
+  })
   watch(qrCodeData, (value: string) => {
     if (value) {
       isProcessing.value = true
@@ -95,12 +185,20 @@ const useQrCodeGenerator = (utils: IUseUtils, qrCode: IUseQrCode) => {
       qrCodeSvg.value = ''
       debouncedGetSVGElementQrcode.clear()
       isProcessing.value = false
+      isCanShareQrcode.value = false
+      showAction.value = false
     }
   })
   return {
     qrCodeSvg,
     qrCodeData,
-    isProcessing
+    isProcessing,
+    showAction,
+    isCanShareQrcode,
+    toggleShowAction,
+    canShareQrcode,
+    shareQrcode,
+    saveQrcode
   }
 }
 

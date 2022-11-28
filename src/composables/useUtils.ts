@@ -10,8 +10,9 @@ export interface IUseUtils {
   timestampToDateString: (val: number) => any
   isUrl: (val: string) => boolean
   copyToClipboard: (val: string) => Promise<boolean>
-  canShare: (val: string) => boolean
-  share: (val: string) => Promise<boolean>
+  canShare: (val: ShareData) => boolean
+  share: (val: ShareData) => Promise<boolean>
+  getBlob: (base64: string) => Promise<Blob>
   debounce: (fn: DebouncingFunction, delay: number) => DebouncedFunction
 }
 
@@ -48,19 +49,15 @@ export default function useUtils (): IUseUtils {
     }
     return true
   }
-  const canShare = (val: string): boolean => {
+  const canShare = (val: ShareData): boolean => {
     if (!navigator.canShare) {
       return false
     }
-    return navigator.canShare({
-      text: val
-    })
+    return navigator.canShare(val)
   }
-  const share = async (val: string): Promise<boolean> => {
+  const share = async (val: ShareData): Promise<boolean> => {
     try {
-      await navigator.share({
-        text: val
-      })
+      await navigator.share(val)
       emitter.emit('$alert-popup:msg', 'Shared')
       emitter.emit('$alert-popup:bgColor', 'bg-green-500')
       emitter.emit('$alert-popup:timeout', 3000)
@@ -73,6 +70,9 @@ export default function useUtils (): IUseUtils {
       return false
     }
     return true
+  }
+  const getBlob = async (base64: string): Promise<Blob> => {
+    return await (await fetch(base64)).blob()
   }
   const debounce = (fn: DebouncingFunction, delay: number): DebouncedFunction => {
     let executedFucntion: number
@@ -93,6 +93,7 @@ export default function useUtils (): IUseUtils {
     copyToClipboard,
     canShare,
     share,
-    debounce
+    debounce,
+    getBlob
   }
 }

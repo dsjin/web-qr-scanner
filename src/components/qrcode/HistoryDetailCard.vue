@@ -64,9 +64,13 @@
               class="flex flex-col w-full"
             >
               <div
-                v-if="utils.canShare(qrcode.data)"
+                v-if="utils.canShare({
+                  text: qrcode.data
+                })"
                 class="text-white font-bold text-md rounded-full h-10 w-auto p-3 bg-gray-900 flex items-center justify-center cursor-pointer mb-4"
-                @click="utils.share(qrcode.data)"
+                @click="utils.share({
+                  text: qrcode.data
+                })"
               >
                 <p
                   class="truncate"

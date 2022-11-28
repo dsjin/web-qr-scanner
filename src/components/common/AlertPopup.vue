@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="props.show"
-    class="flex justify-center absolute w-full bottom-0 left-0 right-0 z-50"
+    class="flex justify-center fixed w-full bottom-0 left-0 right-0 z-50"
   >
     <div
       class="flex w-full md:w-1/2 mb-0 md:mb-5 p-4 text-left transition-opacity rounded-none md:rounded-md shadow-lg opacity-0"
