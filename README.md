@@ -12,12 +12,25 @@ QR Code Scanner Website made with the Vue.js Framework
 - [X] Implement Scanning functionality & UI
 - - [X] Scanning functionality
 - - [X] Result display ui
-- [ ] Implement local database -> ongoing
+- [X] Implement local database
 - - [X] Scanning
-- - [ ] Generating -> ongoing
+- - [X] Generating
 - [ ] Implement PWA
-- [ ] Implement Qr Generating functionality & UI -> ongoing
-- - [ ] Scanning functionality -> ongoing
-- - [ ] Result display ui
+- [X] Implement Qr Generating functionality & UI
+- - [X] Scanning functionality
+- - [X] Result display ui
+
+### Additional Tasks
+
+- [ ] Scanning functionality & UI > Result display ui > Deleting Item
+- [ ] Add virtual list
+
+...TBD
+
+## Local Dev
+
+Have to create a cert key for serving TTS dev server. 
+Make .certs folder at the root of project and put the key inside the folder.
+You can use [mkcert](https://github.com/FiloSottile/mkcert) to create a key.
 
 [^1]: Blank without the ongoing label -> Unimplemented Progress
