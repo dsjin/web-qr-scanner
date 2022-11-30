@@ -30,7 +30,9 @@ QR Code Scanner Website made with the Vue.js Framework
 ## Local Dev
 
 Have to create a cert key for serving TTS dev server. 
+
 Make .certs folder at the root of project and put the key inside the folder.
+
 You can use [mkcert](https://github.com/FiloSottile/mkcert) to create a key.
 
 [^1]: Blank without the ongoing label -> Unimplemented Progress
