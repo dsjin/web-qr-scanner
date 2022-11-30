@@ -143,9 +143,18 @@ const useHome = (camera: IUseCamera) => {
       this.image = data
     },
     async historyOpen () {
-      this.qrCode.qrInfo.loop = false
-      this.historyInfo.historyList = await this.scanningQrCodeObjectStore.getAllScanningQrCode()
-      this.historyInfo.show = true
+      try {
+        this.qrCode.qrInfo.loop = false
+        this.historyInfo.historyList = await this.scanningQrCodeObjectStore.getAllScanningQrCode()
+        this.historyInfo.show = true
+      } catch (e: any) {
+        this.qrCode.qrInfo.loop = true
+        window.requestAnimationFrame(this.qrCode.scannerLoop)
+        this.emitter.emit('$alert-popup:msg', e.message)
+        this.emitter.emit('$alert-popup:bgColor', 'bg-red-500')
+        this.emitter.emit('$alert-popup:timeout', 3000)
+        this.emitter.emit('$alert-popup:show')
+      }
     },
     selectCameraOpen () {
       this.qrCode.qrInfo.loop = false

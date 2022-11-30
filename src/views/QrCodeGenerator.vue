@@ -261,8 +261,15 @@ const useQrCodeGenerator = (utils: IUseUtils, qrCode: IUseQrCode, generatingQrCo
   },
   methods: {
     async openHistory () {
-      this.historyInfo.historyList = await this.generatingQrCodeObjectStore.getAllGeneratingQrCode()
-      this.historyInfo.show = true
+      try {
+        this.historyInfo.historyList = await this.generatingQrCodeObjectStore.getAllGeneratingQrCode()
+        this.historyInfo.show = true
+      } catch (e: any) {
+        this.emitter.emit('$alert-popup:msg', e.message)
+        this.emitter.emit('$alert-popup:bgColor', 'bg-red-500')
+        this.emitter.emit('$alert-popup:timeout', 3000)
+        this.emitter.emit('$alert-popup:show')
+      }
     }
   }
 })
