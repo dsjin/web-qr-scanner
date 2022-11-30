@@ -1,24 +1,21 @@
-# web-qr-scanner
+# Web QR Scanner
 
-## Project setup
-```
-yarn install
-```
+## Details
 
-### Compiles and hot-reloads for development
-```
-yarn serve
-```
+QR Code Scanner Website made with the Vue.js Framework 
 
-### Compiles and minifies for production
-```
-yarn build
-```
+## Site Live on
+[qrcode.dsjin.co](https://qrcode.dsjin.co)
 
-### Lints and fixes files
-```
-yarn lint
-```
+## Progresses [^1]
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+- [X] Implement Scanning functionality & UI
+- - [X] Scanning functionality
+- - [X] Result display ui
+- [ ] Implement local database -> ongoing
+- - [X] Scanning
+- - [ ] Generating
+- [ ] Implement PWA
+- [ ] Implement Qr Generating functionality & UI
+
+[^1]: Blank without the ongoing label -> Unimplemented Progress

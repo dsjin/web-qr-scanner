@@ -1,11 +1,19 @@
 import jsQR from 'jsqr'
 import { ref, Ref } from 'vue'
+import QRcode, { QRCodeOptions, QRCodeToDataURLOptions, QRCodeToStringOptions } from 'qrcode'
 import { IUseScanningQrCodeObjectStore } from './useScanningQrCodeObjectStore'
 
 export interface IQrCodeHistory {
-  data: string,
+  id?: number
+  data: string
   timestamp: number
 }
+
+const defaultOptions = {
+  errorCorrectionLevel: 'H',
+  quality: 1,
+  margin: 1
+} as QRCodeOptions
 
 export interface IUseQrCode {
   qrInfo: {
@@ -14,14 +22,18 @@ export interface IUseQrCode {
     loop: Ref<boolean>
   }
   scannerLoop: () => void
+  pGetSVGElementQrcode: (data: string, options?: QRCodeToStringOptions) => Promise<string>
+  pGetImageDataQrCode: (data: string, options?: QRCodeToDataURLOptions) => Promise<string>
+  getSVGElementQrcode: (data: string, options?: QRCodeToStringOptions, cb?: (result: string) => void) => void
+  getImageDataQrCode: (data: string, options?: QRCodeToDataURLOptions, cb?: (result: string) => void) => void
 }
 
-export default function useQrCode (video: Ref<HTMLVideoElement | null>, scanningQrCodeObjectStore: IUseScanningQrCodeObjectStore) : IUseQrCode {
+export default function useQrCode (video?: Ref<HTMLVideoElement | null>, scanningQrCodeObjectStore?: IUseScanningQrCodeObjectStore) : IUseQrCode {
   const currentRawValue: Ref<string | null> = ref(null)
   const canvas: Ref<HTMLCanvasElement> = ref(document.createElement('canvas'))
   const loop: Ref<boolean> = ref(true)
   const scannerLoop = () => {
-    if (video.value) {
+    if (video?.value) {
       const context = canvas.value.getContext('2d')
       canvas.value.width = 800
       canvas.value.height = 600
@@ -31,7 +43,7 @@ export default function useQrCode (video: Ref<HTMLVideoElement | null>, scanning
         const code = jsQR(data.data, 800, 600)
         if (code && code.data) {
           currentRawValue.value = code.data
-          scanningQrCodeObjectStore.writeScanningQrCodeItem(
+          scanningQrCodeObjectStore?.writeScanningQrCodeItem(
             {
               data: code.data,
               timestamp: new Date().getTime()
@@ -45,12 +57,74 @@ export default function useQrCode (video: Ref<HTMLVideoElement | null>, scanning
       window.requestAnimationFrame(scannerLoop)
     }
   }
+  const pGetSVGElementQrcode = async (data: string, options: QRCodeToStringOptions = {}) : Promise<string> => {
+    return new Promise((resolve, reject) => {
+      QRcode.toString(data, {
+        ...defaultOptions,
+        type: 'svg',
+        ...options
+      }, (error, result) => {
+        if (error) {
+          reject(error)
+          return
+        }
+        resolve(result)
+      })
+    })
+  }
+  const getSVGElementQrcode = (data: string, options: QRCodeToStringOptions = {}, cb?: (result: string) => void) : void => {
+    QRcode.toString(data, {
+      ...defaultOptions,
+      type: 'svg',
+      ...options
+    }, (error, result) => {
+      if (error) {
+        throw error
+      }
+      if (cb) {
+        cb(result)
+      }
+    })
+  }
+  const pGetImageDataQrCode = async (data: string, options: QRCodeToDataURLOptions = {}) : Promise<string> => {
+    return new Promise((resolve, reject) => {
+      QRcode.toDataURL(data, {
+        ...defaultOptions,
+        type: 'image/webp',
+        ...options
+      }, (error, result) => {
+        if (error) {
+          reject(error)
+          return
+        }
+        resolve(result)
+      })
+    })
+  }
+  const getImageDataQrCode = (data: string, options: QRCodeToDataURLOptions = {}, cb?: (result: string) => void) : void => {
+    QRcode.toDataURL(data, {
+      ...defaultOptions,
+      type: 'image/webp',
+      ...options
+    }, (error, result) => {
+      if (error) {
+        throw error
+      }
+      if (cb) {
+        cb(result)
+      }
+    })
+  }
   return {
     qrInfo: {
       currentRawValue,
       canvas,
       loop
     },
-    scannerLoop
+    scannerLoop,
+    pGetSVGElementQrcode,
+    pGetImageDataQrCode,
+    getSVGElementQrcode,
+    getImageDataQrCode
   }
 }

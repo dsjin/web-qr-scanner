@@ -11,9 +11,12 @@ export default function useIndexedDb (): IUseIndexedDb {
   const initDb = () => {
     if (window) {
       if (!('indexedDB' in window)) {
-        console.log("This browser doesn't support IndexedDB.")
+        emitter.emit('$alert-popup:msg', 'This browser doesn\'t support IndexedDB.')
+        emitter.emit('$alert-popup:bgColor', 'bg-red-500')
+        emitter.emit('$alert-popup:timeout', 3000)
+        emitter.emit('$alert-popup:show')
       }
-      const request: IDBOpenDBRequest = window.indexedDB.open('qrcode-dsjin-db', 1)
+      const request: IDBOpenDBRequest = window.indexedDB.open('qrcode-dsjin-db', 2)
       request.onsuccess = (ev: any) => {
         db.value = ev.target.result
       }
@@ -34,6 +37,10 @@ export default function useIndexedDb (): IUseIndexedDb {
         if (!upgradeDb.objectStoreNames.contains('qrcode_histories')) {
           const scanningQrcodesOS = upgradeDb.createObjectStore('qrcode_histories', { keyPath: 'id', autoIncrement: true })
           scanningQrcodesOS.createIndex('timestamp', 'timestamp', { unique: false })
+        }
+        if (!upgradeDb.objectStoreNames.contains('qrcode_generating_histories')) {
+          const generatingQrcodesOS = upgradeDb.createObjectStore('qrcode_generating_histories', { keyPath: 'id', autoIncrement: true })
+          generatingQrcodesOS.createIndex('timestamp', 'timestamp', { unique: false })
         }
       }
     }

@@ -1,0 +1,26 @@
+name: CI - Test
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches:
+      - '*'
+jobs:
+  unit-test:
+    name: Unit Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      TZ: 'Asia/Tokyo'
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: '16.17.0'
+          check-latest: true
+      - name: Install npm Dependencies
+        run: yarn
+      - name: Run tests with jest
+        run: yarn test:ci
+      
