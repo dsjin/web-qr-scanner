@@ -2,7 +2,7 @@ import { Ref } from 'vue'
 import { IQrCodeHistory } from './useQrCode'
 
 export interface IUseGeneratingQrCodeObjectStore {
-  writeGeneratingQrCodeItem: (qrCodeItem: IQrCodeHistory) => void
+  writeGeneratingQrCodeItem: (qrCodeItem: IQrCodeHistory) => Promise<IDBValidKey>
   deleteGeneratingQrCodeItem: (id: number) => void
   getAllGeneratingQrCode: () => Promise<Array<IQrCodeHistory>>
 }
@@ -46,8 +46,7 @@ export default function useGeneratingQrCodeObjectStore (db: Ref<IDBDatabase | nu
     return new Promise((resolve, reject) => {
       const qrcodeHistoryList: Array<IQrCodeHistory> = []
       const generatingQrCodeObjectStore = db.value?.transaction('qrcode_generating_histories', 'readwrite').objectStore('qrcode_generating_histories')
-      // eslint-disable-next-line
-      const gettingAll = generatingQrCodeObjectStore!.getAll()
+      const gettingAll = generatingQrCodeObjectStore?.getAll()
       if (gettingAll) {
         gettingAll.onsuccess = (ev: any) => {
           ev.target.result.forEach((element: any) => {

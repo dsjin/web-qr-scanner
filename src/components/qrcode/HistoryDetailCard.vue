@@ -22,7 +22,7 @@
           v-if="displayingList.length > 0"
         >
           <div
-            v-for="qrcode in displayingList"
+            v-for="(qrcode, index) in displayingList"
             :key="`${qrcode.data}-${qrcode.timestamp}`"
             class="flex flex-col p-4"
           >
@@ -97,6 +97,13 @@
                   Open Link
                 </p>
               </a>
+              <div class="text-white font-bold text-md rounded-full h-10 w-auto p-3 bg-gray-900 flex items-center justify-center cursor-pointer mb-4" @click="deleteQrcode(index)">
+                <p
+                  class="truncate"
+                >
+                  Delete
+                </p>
+              </div>
             </div>
           </div>
         </template>
@@ -116,6 +123,8 @@ import { Options, Vue } from 'vue-class-component'
 import { IHistoryDetailCard } from '@/assets/interface/historyDetailCard'
 import useUtils from '@/composables/useUtils'
 import { IQrCodeHistory } from '@/composables/useQrCode'
+import useIndexedDb from '@/composables/useIndexedDb'
+import useScanningQrCodeObjectStore from '@/composables/useScanningQrCodeObjectStore'
 
 interface IActionBlockShow {
   show: boolean
@@ -160,11 +169,28 @@ interface IActionBlock {
     },
     toggleShowAction (value: IQrCodeHistory & IActionBlock) {
       value.action.show = !value.action.show
+    },
+    async deleteQrcode (index: number) {
+      try {
+        await this.scanningQrCodeObjectStore.deleteScanningQrCodeItem(this.displayingList[index].id)
+        this.displayingList.splice(index, 1)
+        this.emitter.emit('$alert-popup:msg', 'Deleted')
+        this.emitter.emit('$alert-popup:bgColor', 'bg-green-500')
+        this.emitter.emit('$alert-popup:timeout', 3000)
+        this.emitter.emit('$alert-popup:show')
+      } catch (e: any) {
+        this.emitter.emit('$alert-popup:msg', e.message)
+        this.emitter.emit('$alert-popup:bgColor', 'bg-red-500')
+        this.emitter.emit('$alert-popup:timeout', 3000)
+        this.emitter.emit('$alert-popup:show')
+      }
     }
   }
 })
 export default class HistoryDetailCard extends Vue {
   utils = useUtils()
+  indexDb = useIndexedDb()
+  scanningQrCodeObjectStore = useScanningQrCodeObjectStore(this.indexDb.db)
 }
 </script>
 
