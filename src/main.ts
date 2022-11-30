@@ -5,8 +5,11 @@ import router from './router'
 import store from './store'
 import '@/assets/css/tailwind.css'
 import mitt from 'mitt'
+import VueVirtualScroller from 'vue-virtual-scroller'
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 
 const emitter = mitt()
 const app = createApp(App)
 app.config.globalProperties.emitter = emitter
 app.use(store).use(router).mount('#app')
+app.use(VueVirtualScroller)
