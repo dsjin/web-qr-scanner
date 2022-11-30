@@ -4,7 +4,8 @@ import QRcode, { QRCodeOptions, QRCodeToDataURLOptions, QRCodeToStringOptions } 
 import { IUseScanningQrCodeObjectStore } from './useScanningQrCodeObjectStore'
 
 export interface IQrCodeHistory {
-  data: string,
+  id?: number
+  data: string
   timestamp: number
 }
 

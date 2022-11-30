@@ -1,10 +1,20 @@
 <template>
-  <div class="qrcode-generator min-h-screen w-screen bg-gradient-to-r from-green-400 via-blue-500 to-indigo-500 pb-16">
+  <div
+    class="qrcode-generator min-h-screen w-screen bg-gradient-to-r from-green-400 via-blue-500 to-indigo-500 pb-16"
+    :class="{'h-screen': historyInfo.show, 'overflow-hidden': historyInfo.show}"
+  >
     <h1
       class="pt-10 font-semibold text-6xl md:text-8xl text-white mix-blend-overlay"
     >
       Qrcode Generator
     </h1>
+    <div class="absolute right-4 top-4 text-white font-bold text-md rounded-full h-10 w-30 md:w-auto truncate p-3 bg-gray-900 flex items-center justify-center cursor-pointer z-9" @click="openHistory">
+      <p
+        class="truncate"
+      >
+        History
+      </p>
+    </div>
     <div
       class="qrcode-form p-4 md:py-10 flex flex-col items-center"
     >
@@ -82,7 +92,7 @@
         class="flex flex-col w-full md:w-96 mt-4"
       >
         <div
-          v-if="qrCodeGenerator.isCanShareQrcode"
+          v-if="qrCodeGenerator.isAbleToShareQrcode"
           class="text-white font-bold text-md rounded-full h-10 w-auto p-3 bg-gray-900 flex items-center justify-center cursor-pointer mb-4"
           @click="qrCodeGenerator.shareQrcode"
         >
@@ -96,20 +106,30 @@
           <p
             class="truncate"
           >
-            Save
+            Save an image
+          </p>
+        </div>
+        <div class="text-white font-bold text-md rounded-full h-10 w-auto p-3 bg-gray-900 flex items-center justify-center cursor-pointer mb-4" @click="qrCodeGenerator.saveQrcodeItemToHistoryList">
+          <p
+            class="truncate"
+          >
+            Save to the history list
           </p>
         </div>
       </div>
-      <label for="qrcode-textarea" class="w-full md:w-2/5 text-left text-white p-2 text-xl md:text-2xl">
+      <label for="qrcode-textarea" class="w-full md:w-3/5 lg:w-2/5 text-left text-white p-2 text-xl md:text-2xl">
         Input Data
       </label>
       <textarea
         v-model="qrCodeGenerator.qrCodeData"
         name="qrcode-textarea"
-        class="p-4 w-full md:w-2/5 h-52 md:h-96 rounded-md shadow-xl resize-none"
+        class="p-4 w-full md:w-3/5 lg:w-2/5 h-52 md:h-96 rounded-md shadow-xl resize-none"
       />
     </div>
   </div>
+  <generating-history-detail-card
+    :info="historyInfo"
+  />
 </template>
 
 <script lang="ts">
@@ -118,6 +138,11 @@ import { Options, Vue } from 'vue-class-component'
 import useUtils, { IUseUtils } from '@/composables/useUtils'
 import useQrCode, { IUseQrCode } from '@/composables/useQrCode'
 import { QRCodeToStringOptions } from 'qrcode'
+import useEmitter from '@/composables/useEmitter'
+import useIndexedDb from '@/composables/useIndexedDb'
+import useGeneratingQrCodeObjectStore, { IUseGeneratingQrCodeObjectStore } from '@/composables/useGeneratingQrCodeObjectStore'
+import { Emitter, EventType } from 'mitt'
+import GeneratingHistoryDetailCard from '@/components/qrcode/GeneratingHistoryDetailCard.vue'
 
 interface ShareData {
   files?: File[]
@@ -126,12 +151,12 @@ interface ShareData {
   url?: string
 }
 
-const useQrCodeGenerator = (utils: IUseUtils, qrCode: IUseQrCode) => {
+const useQrCodeGenerator = (utils: IUseUtils, qrCode: IUseQrCode, generatingQrCodeObjectStore: IUseGeneratingQrCodeObjectStore, emitter: Emitter<Record<EventType, unknown>>) => {
   const qrCodeSvg: Ref<string> = ref('')
   const qrCodeData: Ref<string> = ref('')
   const isProcessing: Ref<boolean> = ref(false)
   const showAction: Ref<boolean> = ref(false)
-  const isCanShareQrcode: Ref<boolean> = ref(false)
+  const isAbleToShareQrcode: Ref<boolean> = ref(false)
   const debouncedGetSVGElementQrcode: {
     (data: string, options?: QRCodeToStringOptions, cb?: (result: string) => void): void
     clear(): void
@@ -139,9 +164,9 @@ const useQrCodeGenerator = (utils: IUseUtils, qrCode: IUseQrCode) => {
   const toggleShowAction = () => {
     showAction.value = !showAction.value
   }
-  const getQrcodeShareObject = async (): Promise<ShareData> => {
+  const getQrcodeShareObject = async (scale = 1): Promise<ShareData> => {
     const qrCodeBase64 = await qrCode.pGetImageDataQrCode(qrCodeData.value, {
-      scale: 50
+      scale
     })
     const qrCodeBlob = await utils.getBlob(qrCodeBase64)
     const file = new File([qrCodeBlob], `qrcode-${new Date().getTime()}.webp`, { type: qrCodeBlob.type })
@@ -156,7 +181,7 @@ const useQrCodeGenerator = (utils: IUseUtils, qrCode: IUseQrCode) => {
     return utils.canShare(await getQrcodeShareObject())
   }
   const shareQrcode = async () => {
-    await utils.share(await getQrcodeShareObject())
+    await utils.share(await getQrcodeShareObject(50))
   }
   const saveQrcode = async () => {
     const link = document.createElement('a')
@@ -169,9 +194,28 @@ const useQrCodeGenerator = (utils: IUseUtils, qrCode: IUseQrCode) => {
     link.click()
     document.body.removeChild(link)
   }
+  const saveQrcodeItemToHistoryList = async () => {
+    try {
+      await generatingQrCodeObjectStore.writeGeneratingQrCodeItem(
+        {
+          data: qrCodeData.value,
+          timestamp: new Date().getTime()
+        }
+      )
+      emitter.emit('$alert-popup:msg', 'Saved to the history list.')
+      emitter.emit('$alert-popup:bgColor', 'bg-green-500')
+      emitter.emit('$alert-popup:timeout', 3000)
+      emitter.emit('$alert-popup:show')
+    } catch (e: any) {
+      emitter.emit('$alert-popup:msg', e.message)
+      emitter.emit('$alert-popup:bgColor', 'bg-red-500')
+      emitter.emit('$alert-popup:timeout', 3000)
+      emitter.emit('$alert-popup:show')
+    }
+  }
   watch(showAction, async (value: boolean) => {
     if (value) {
-      isCanShareQrcode.value = await canShareQrcode()
+      isAbleToShareQrcode.value = await canShareQrcode()
     }
   })
   watch(qrCodeData, (value: string) => {
@@ -185,7 +229,7 @@ const useQrCodeGenerator = (utils: IUseUtils, qrCode: IUseQrCode) => {
       qrCodeSvg.value = ''
       debouncedGetSVGElementQrcode.clear()
       isProcessing.value = false
-      isCanShareQrcode.value = false
+      isAbleToShareQrcode.value = false
       showAction.value = false
     }
   })
@@ -194,22 +238,41 @@ const useQrCodeGenerator = (utils: IUseUtils, qrCode: IUseQrCode) => {
     qrCodeData,
     isProcessing,
     showAction,
-    isCanShareQrcode,
+    isAbleToShareQrcode,
     toggleShowAction,
     canShareQrcode,
     shareQrcode,
-    saveQrcode
+    saveQrcode,
+    saveQrcodeItemToHistoryList
   }
 }
 
 @Options({
+  components: {
+    GeneratingHistoryDetailCard
+  },
   data () {
-    return {}
+    return {
+      historyInfo: {
+        historyList: [],
+        show: false
+      }
+    }
+  },
+  methods: {
+    async openHistory () {
+      this.historyInfo.historyList = await this.generatingQrCodeObjectStore.getAllGeneratingQrCode()
+      this.historyInfo.show = true
+    }
   }
 })
+
 export default class QrCodeGenerator extends Vue {
+  emitter = useEmitter()
+  indexDb = useIndexedDb()
   utils = useUtils()
   qrCode = useQrCode()
-  qrCodeGenerator = useQrCodeGenerator(this.utils, this.qrCode)
+  generatingQrCodeObjectStore = useGeneratingQrCodeObjectStore(this.indexDb.db)
+  qrCodeGenerator = useQrCodeGenerator(this.utils, this.qrCode, this.generatingQrCodeObjectStore, this.emitter)
 }
 </script>
