@@ -7,7 +7,8 @@
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "test": "jest",
-    "test:ci": "jest --ci"
+    "test:ci": "jest --ci",
+    "install:custom": "cd install_script && yarn && node pre_install.js && cd .. && yarn"
   },
   "dependencies": {
     "core-js": "^3.6.5",
@@ -18,8 +19,8 @@
     "vue": "^3.0.0",
     "vue-class-component": "^8.0.0-0",
     "vue-router": "^4.0.0-0",
-    "vue-virtual-scroller": "^2.0.0-beta.3",
-    "vuex": "^4.0.0-0"
+    "vuex": "^4.0.0-0",
+    "vue-virtual-scroller": "./external_lib/vue-virtual-scroller-source/vue-virtual-scroller"
   },
   "devDependencies": {
     "@types/jest": "^29.2.2",
