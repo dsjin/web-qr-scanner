@@ -56,7 +56,6 @@ const useHome = (camera: IUseCamera) => {
     video.value.play()
   }
   watch(camera.cameraInfo.stream, () => {
-    console.log(camera.cameraInfo.stream.value)
     playVideo()
   })
   return {

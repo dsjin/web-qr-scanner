@@ -19,7 +19,7 @@
       </h1>
       <div
         class="p-5 md:p-10 bg-gray-500 text-2xl text-white my-10 md:my-20"
-        :class="{'h-[calc(100vh-10rem)] md:h-[calc(100vh-16rem)]': displayingList.length > 0, 'h-content' : displayingList.length === 0}"
+        :class="{'h-[calc(100vh-10rem)] md:h-[calc(100vh-16rem)]': displayingList.length > 0}"
       >
         <template
           v-if="displayingList.length > 0"
