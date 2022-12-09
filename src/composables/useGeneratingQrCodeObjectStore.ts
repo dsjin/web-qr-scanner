@@ -5,6 +5,7 @@ export interface IUseGeneratingQrCodeObjectStore {
   writeGeneratingQrCodeItem: (qrCodeItem: IQrCodeHistory) => Promise<IDBValidKey>
   deleteGeneratingQrCodeItem: (id: number) => void
   getAllGeneratingQrCode: () => Promise<Array<IQrCodeHistory>>
+  getGeneratingQrCode: (start?: number, limit?: number) => Promise<Array<IQrCodeHistory>>
 }
 
 export default function useGeneratingQrCodeObjectStore (db: Ref<IDBDatabase | null>): IUseGeneratingQrCodeObjectStore {
@@ -42,6 +43,38 @@ export default function useGeneratingQrCodeObjectStore (db: Ref<IDBDatabase | nu
       }
     })
   }
+  const getGeneratingQrCode = (start = 0, limit = 10): Promise<Array<IQrCodeHistory>> => {
+    return new Promise((resolve, reject) => {
+      const qrcodeHistoryList: Array<IQrCodeHistory> = []
+      const generatingQrCodeObjectStore = db.value?.transaction('qrcode_generating_histories', 'readonly').objectStore('qrcode_generating_histories')
+      const gettingOpenCursor = generatingQrCodeObjectStore?.openCursor()
+      let hasSkipped = false
+      if (gettingOpenCursor) {
+        gettingOpenCursor.onsuccess = (ev: any) => {
+          const cursor = ev.target.result
+          if (cursor) {
+            if (!hasSkipped && start > 0) {
+              hasSkipped = true
+              cursor.advance(start)
+              return
+            }
+            qrcodeHistoryList.push(
+              cursor.value
+            )
+            if (qrcodeHistoryList.length < limit) {
+              cursor.continue()
+            } else {
+              resolve(qrcodeHistoryList)
+            }
+          } else {
+            resolve(qrcodeHistoryList)
+          }
+        }
+      } else {
+        reject(new Error('DB is not ready.'))
+      }
+    })
+  }
   const getAllGeneratingQrCode = (): Promise<Array<IQrCodeHistory>> => {
     return new Promise((resolve, reject) => {
       const qrcodeHistoryList: Array<IQrCodeHistory> = []
@@ -65,6 +98,7 @@ export default function useGeneratingQrCodeObjectStore (db: Ref<IDBDatabase | nu
   return {
     writeGeneratingQrCodeItem,
     getAllGeneratingQrCode,
-    deleteGeneratingQrCodeItem
+    deleteGeneratingQrCodeItem,
+    getGeneratingQrCode
   }
 }
