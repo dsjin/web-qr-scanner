@@ -17,47 +17,22 @@
       >
         History
       </h1>
+      <button
+        @click="$emit('fetch-data')"
+      >
+        Add Data
+      </button>
       <div
-        class="p-5 md:p-10 bg-gray-500 text-2xl text-white my-10 md:my-20"
-        :class="{'h-[calc(100vh-10rem)] md:h-[calc(100vh-16rem)]': !busy && displayingList.length > 0}"
+        class="relative p-5 md:p-10 bg-gray-500 text-2xl text-white my-10 md:my-20"
+        :class="{'h-[calc(100vh-10rem)] md:h-[calc(100vh-16rem)]': !firstInit && displayingList.length > 0}"
       >
         <template
-          v-if="busy"
+          v-if="busy && firstInit"
         >
           <div
             class="flex justify-center items-center w-full h-full"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="70"
-              height="70"
-              viewBox="0 0 200 200"
-              fill="none"
-              class="text-red-600 animate-spin"
-            >
-              <g stroke="currentColor" stroke-width="10">
-                <path opacity="1" d="M 191 70 A 96 96 0 0 1 196 100" />
-                <path opacity="0.95" d="M 178 44 A 96 96 0 0 1 191 70" />
-                <path opacity="0.90" d="M 156 22 A 96 96 0 0 1 178 44" />
-                <path opacity="0.85" d="M 130 9 A 96 96 0 0 1 156 22" />
-                <path opacity="0.80" d="M 100 4 A 96 96 0 0 1 130 9" />
-                <path opacity="0.75" d="M 70 9 A 96 96 0 0 1 100 4" />
-                <path opacity="0.70" d="M 44 22 A 96 96 0 0 1 70 9" />
-                <path opacity="0.65" d="M 22 44 A 96 96 0 0 1 44 22" />
-                <path opacity="0.60" d="M 9 70 A 96 96 0 0 1 22 44" />
-                <path opacity="0.55" d="M 4 100 A 96 96 0 0 1 9 70" />
-                <path opacity="0.50" d="M 9 130 A 96 96 0 0 1 4 100" />
-                <path opacity="0.45" d="M 22 156 A 96 96 0 0 1 9 130" />
-                <path opacity="0.40" d="M 44 178 A 96 96 0 0 1 22 156" />
-                <path opacity="0.35" d="M 70 191 A 96 96 0 0 1 44 178" />
-                <path opacity="0.30" d="M 100 196 A 96 96 0 0 1 70 191" />
-                <path opacity="0.25" d="M 130 191 A 96 96 0 0 1 100 196" />
-                <path opacity="0.20" d="M 156 178 A 96 96 0 0 1 130 191" />
-                <path opacity="0.15" d="M 178 156 A 96 96 0 0 1 156 178" />
-                <path opacity="0.10" d="M 191 130 A 96 96 0 0 1 178 156" />
-                <path opacity="0.05" d="M 196 100 A 96 96 0 0 1 191 130" />
-              </g>
-            </svg>
+            <loading />
           </div>
         </template>
         <template
@@ -66,9 +41,16 @@
           <template
             v-if="displayingList.length != 0"
           >
+            <div
+              class="flex justify-center items-center w-full h-full absolute left-0 top-0 bg-gray-500 bg-opacity-70 z-20"
+              v-if="busy && !firstInit"
+            >
+              <loading />
+            </div>
             <dynamic-scroller
+              ref="scroller"
               :items="displayingList"
-              :min-item-size="100"
+              :min-item-size="400"
               class="h-full"
             >
               <template v-slot="{ item: qrcode, index, active }">
@@ -76,9 +58,9 @@
                   :item="qrcode"
                   :active="active"
                   :size-dependencies="[
-                    qrcode.data
+                    qrcode
                   ]"
-                  :data-index="index"
+                  :data-index="qrcode.id"
                 >
                   <div
                     class="wrapper"
@@ -101,6 +83,7 @@
                           class="flex-grow flex-initial w-full md:w-3/5 text-left break-all"
                         >
                           {{ qrcode.data }}
+                          {{ qrcode.id }}
                         </p>
                         <p
                           class="flex-grow flex-initial w-full md:w-2/5 md:text-center text-right"
@@ -223,13 +206,14 @@ interface ShareData {
   data () {
     return {
       displayingList: [],
-      busy: false
+      busy: false,
+      firstInit: true
     }
   },
   watch: {
     async 'info.show' (val) {
       this.busy = true
-      if (val) {
+      if (val && this.firstInit) {
         this.displayingList = (this.info as IGeneratingHistoryDetailCard).historyList.map((value: IQrCodeHistory): IQrCodeHistory & IActionBlock & IHtmlBlock => {
           return {
             ...value,
@@ -246,8 +230,36 @@ interface ShareData {
           this.displayingList[index].html.svg = await this.qrCode.pGetSVGElementQrcode(this.displayingList[index].data)
           this.displayingList[index].action.isAbleToShareQrcode = this.utils.canShare(await this.getQrcodeShareObject(this.displayingList[index].data))
         }
+        this.firstInit = false
       } else {
         this.displayingList = []
+      }
+      this.busy = false
+    },
+    async 'info.historyList' (val) {
+      this.busy = true
+      if (val.length > 0 && !this.firstInit) {
+        const currentIndex = this.displayingList.length
+        for (let index = currentIndex; index < (this.info as IGeneratingHistoryDetailCard).historyList.length; index++) {
+          this.displayingList.push(
+            {
+              ...(this.info as IGeneratingHistoryDetailCard).historyList[index],
+              action: {
+                show: false,
+                isAbleToShareQrcode: false
+              },
+              html: {
+                svg: ''
+              }
+            }
+          )
+        }
+        for (let index = currentIndex; index < this.displayingList.length; index++) {
+          this.displayingList[index].html.svg = await this.qrCode.pGetSVGElementQrcode(this.displayingList[index].data)
+          this.displayingList[index].action.isAbleToShareQrcode = this.utils.canShare(await this.getQrcodeShareObject(this.displayingList[index].data))
+        }
+        console.log(this.$refs.scroller)
+        this.$refs.scroller.onScrollerResize()
       }
       this.busy = false
     }
@@ -256,6 +268,7 @@ interface ShareData {
     close () {
       this.info.historyList = []
       this.info.show = false
+      this.firstInit = true
     },
     toggleShowAction (value: IQrCodeHistory & IActionBlock) {
       value.action.show = !value.action.show
@@ -304,6 +317,12 @@ interface ShareData {
         this.emitter.emit('$alert-popup:bgColor', 'bg-red-500')
         this.emitter.emit('$alert-popup:timeout', 3000)
         this.emitter.emit('$alert-popup:show')
+      }
+    },
+    async onScroll (e: any) {
+      const { scrollTop, offsetHeight, scrollHeight } = e.target
+      if ((scrollTop + offsetHeight) >= scrollHeight) {
+        this.$emit('fetch-data')
       }
     }
   }
