@@ -129,6 +129,7 @@
   </div>
   <generating-history-detail-card
     :info="historyInfo"
+    @fetch-data="getHistory"
   />
 </template>
 
@@ -262,11 +263,29 @@ const useQrCodeGenerator = (utils: IUseUtils, qrCode: IUseQrCode, generatingQrCo
   methods: {
     async openHistory () {
       try {
-        this.historyInfo.historyList = await this.generatingQrCodeObjectStore.getAllGeneratingQrCode()
+        this.historyInfo.historyList = []
+        await this.getHistory(true)
         this.historyInfo.show = true
       } catch (e: any) {
         this.emitter.emit('$alert-popup:msg', e.message)
         this.emitter.emit('$alert-popup:bgColor', 'bg-red-500')
+        this.emitter.emit('$alert-popup:timeout', 3000)
+        this.emitter.emit('$alert-popup:show')
+      }
+    },
+    async getHistory (firstInit = false) {
+      const data = await this.generatingQrCodeObjectStore.getGeneratingQrCode(
+        this.historyInfo.historyList.length > 0 ? this.historyInfo.historyList.length : 0
+      )
+
+      if (data.length > 0) {
+        this.historyInfo.historyList = [
+          ...this.historyInfo.historyList,
+          ...data
+        ]
+      } else if (!firstInit) {
+        this.emitter.emit('$alert-popup:msg', 'No more items in database')
+        this.emitter.emit('$alert-popup:bgColor', 'bg-yellow-500')
         this.emitter.emit('$alert-popup:timeout', 3000)
         this.emitter.emit('$alert-popup:show')
       }

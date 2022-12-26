@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="info.show"
-    class="absolute top-0 left-0 right-0 bg-gradient-to-r from-yellow-400 via-red-500 to-pink-500 h-screen overflow-y-scroll z-30"
+    class="absolute top-0 left-0 right-0 bg-gradient-to-r from-yellow-400 via-red-500 to-pink-500 h-screen overflow-hidden z-30"
   >
     <div
       class="absolute right-4 top-4 text-white font-bold text-md rounded-full h-10 w-10 bg-gray-900 flex items-center justify-center cursor-pointer z-40"
@@ -17,135 +17,147 @@
       >
         History
       </h1>
-      <div class="p-5 md:p-10 bg-gray-500 text-2xl text-white my-10 md:my-20 divide-y divide-dashed h-1/2">
+      <div
+        class="relative p-5 md:p-10 bg-gray-500 text-2xl text-white my-10 md:my-20"
+        :class="{'h-[calc(100vh-10rem)] md:h-[calc(100vh-16rem)]': !firstInit && displayingList.length > 0}"
+      >
         <template
-          v-if="busy"
+          v-if="busy && firstInit"
         >
           <div
             class="flex justify-center items-center w-full h-full"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="70"
-              height="70"
-              viewBox="0 0 200 200"
-              fill="none"
-              class="text-red-600 animate-spin"
-            >
-              <g stroke="currentColor" stroke-width="10">
-                <path opacity="1" d="M 191 70 A 96 96 0 0 1 196 100" />
-                <path opacity="0.95" d="M 178 44 A 96 96 0 0 1 191 70" />
-                <path opacity="0.90" d="M 156 22 A 96 96 0 0 1 178 44" />
-                <path opacity="0.85" d="M 130 9 A 96 96 0 0 1 156 22" />
-                <path opacity="0.80" d="M 100 4 A 96 96 0 0 1 130 9" />
-                <path opacity="0.75" d="M 70 9 A 96 96 0 0 1 100 4" />
-                <path opacity="0.70" d="M 44 22 A 96 96 0 0 1 70 9" />
-                <path opacity="0.65" d="M 22 44 A 96 96 0 0 1 44 22" />
-                <path opacity="0.60" d="M 9 70 A 96 96 0 0 1 22 44" />
-                <path opacity="0.55" d="M 4 100 A 96 96 0 0 1 9 70" />
-                <path opacity="0.50" d="M 9 130 A 96 96 0 0 1 4 100" />
-                <path opacity="0.45" d="M 22 156 A 96 96 0 0 1 9 130" />
-                <path opacity="0.40" d="M 44 178 A 96 96 0 0 1 22 156" />
-                <path opacity="0.35" d="M 70 191 A 96 96 0 0 1 44 178" />
-                <path opacity="0.30" d="M 100 196 A 96 96 0 0 1 70 191" />
-                <path opacity="0.25" d="M 130 191 A 96 96 0 0 1 100 196" />
-                <path opacity="0.20" d="M 156 178 A 96 96 0 0 1 130 191" />
-                <path opacity="0.15" d="M 178 156 A 96 96 0 0 1 156 178" />
-                <path opacity="0.10" d="M 191 130 A 96 96 0 0 1 178 156" />
-                <path opacity="0.05" d="M 196 100 A 96 96 0 0 1 191 130" />
-              </g>
-            </svg>
+            <loading />
           </div>
         </template>
         <template
           v-else
         >
           <template
-            v-if="displayingList.length > 0"
+            v-if="displayingList.length !== 0"
           >
             <div
-              v-for="(qrcode, index) in displayingList"
-              :key="`${qrcode.data}-${qrcode.timestamp}`"
-              class="flex flex-col p-4"
+              class="flex justify-center items-center w-full h-full absolute left-0 top-0 bg-gray-500 bg-opacity-70 z-20"
+              v-if="busy && !firstInit"
             >
-              <div
-                class="flex justify-center items-center w-full bg-white rounded-md shadow-xl"
-              >
-                <div
-                  v-html="qrcode.html.svg"
-                  class="lg:w-1/5 md:w-1/2 w-full"
-                />
-              </div>
-              <div
-                class="flex flex-col md:flex-row w-full my-4"
-              >
-                <p
-                  class="flex-grow flex-initial w-full md:w-3/5 text-left break-all"
-                >
-                  {{ qrcode.data }}
-                </p>
-                <p
-                  class="flex-grow flex-initial w-full md:w-2/5 md:text-center text-right"
-                >
-                  {{ utils.timestampToDateString(qrcode.timestamp) }}
-                </p>
-                <div
-                  class="flex justify-end mt-4 md:mt-0 flex-grow flex-initial w-full md:w-10"
+              <loading />
+            </div>
+            <dynamic-scroller
+              ref="scroller"
+              :items="displayingList"
+              :min-item-size="400"
+              class="h-full"
+            >
+              <template v-slot="{ item: qrcode, index, active }">
+                <dynamic-scroller-item
+                  :item="qrcode"
+                  :active="active"
+                  :size-dependencies="[
+                    qrcode
+                  ]"
+                  :data-index="qrcode.id"
                 >
                   <div
-                    class="text-white font-bold text-md rounded-full h-10 w-10 bg-gray-900 flex items-center justify-center cursor-pointer"
-                    @click="toggleShowAction(qrcode)"
+                    class="wrapper"
                   >
-                    <template
-                      v-if="!qrcode.action.show"
+                    <div
+                      class="flex flex-col p-4"
                     >
-                      ▼
-                    </template>
-                    <template
-                      v-else
-                    >
-                      ▲
-                    </template>
+                      <div
+                        class="flex justify-center items-center w-full bg-white rounded-md shadow-xl"
+                      >
+                        <div
+                          v-html="qrcode.html.svg"
+                          class="lg:w-1/5 md:w-1/2 w-full"
+                        />
+                      </div>
+                      <div
+                        class="flex flex-col md:flex-row w-full my-4"
+                      >
+                        <p
+                          class="flex-grow flex-initial w-full md:w-3/5 text-left break-all"
+                        >
+                          {{ qrcode.data }}
+                          {{ qrcode.id }}
+                        </p>
+                        <p
+                          class="flex-grow flex-initial w-full md:w-2/5 md:text-center text-right"
+                        >
+                          {{ utils.timestampToDateString(qrcode.timestamp) }}
+                        </p>
+                        <div
+                          class="flex justify-end mt-4 md:mt-0 flex-grow flex-initial w-full md:w-10"
+                        >
+                          <div
+                            class="text-white font-bold text-md rounded-full h-10 w-10 bg-gray-900 flex items-center justify-center cursor-pointer"
+                            @click="toggleShowAction(qrcode)"
+                          >
+                            <template
+                              v-if="!qrcode.action.show"
+                            >
+                              ▼
+                            </template>
+                            <template
+                              v-else
+                            >
+                              ▲
+                            </template>
+                          </div>
+                        </div>
+                      </div>
+                      <div
+                        v-if="qrcode.action.show"
+                        class="flex flex-col w-full"
+                      >
+                        <div
+                          v-if="qrcode.action.isAbleToShareQrcode"
+                          class="text-white font-bold text-md rounded-full h-10 w-auto p-3 bg-gray-900 flex items-center justify-center cursor-pointer mb-4"
+                          @click="shareQrcode(index)"
+                        >
+                          <p
+                            class="truncate"
+                          >
+                            Share
+                          </p>
+                        </div>
+                        <div
+                          class="text-white font-bold text-md rounded-full h-10 w-auto p-3 bg-gray-900 flex items-center justify-center cursor-pointer mb-4"
+                          @click="saveQrcode(index)"
+                        >
+                          <p
+                            class="truncate"
+                          >
+                            Save an Image
+                          </p>
+                        </div>
+                        <div
+                          class="text-white font-bold text-md rounded-full h-10 w-auto p-3 bg-gray-900 flex items-center justify-center cursor-pointer mb-4"
+                          @click="deleteQrcode(index)"
+                        >
+                          <p
+                            class="truncate"
+                          >
+                            Delete
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-              <div
-                v-if="qrcode.action.show"
-                class="flex flex-col w-full"
-              >
+                </dynamic-scroller-item>
+              </template>
+              <template #after>
                 <div
-                  v-if="qrcode.action.isAbleToShareQrcode"
-                  class="text-white font-bold text-md rounded-full h-10 w-auto p-3 bg-gray-900 flex items-center justify-center cursor-pointer mb-4"
-                  @click="shareQrcode(index)"
+                  class="w-full px-0 md:px-10"
                 >
-                  <p
-                    class="truncate"
+                  <button
+                    class="text-white font-bold text-md rounded-full h-10 w-full bg-gray-900 flex items-center justify-center cursor-pointer"
+                    @click="$emit('fetch-data')"
                   >
-                    Share
-                  </p>
+                    Load more
+                  </button>
                 </div>
-                <div
-                  class="text-white font-bold text-md rounded-full h-10 w-auto p-3 bg-gray-900 flex items-center justify-center cursor-pointer mb-4"
-                  @click="saveQrcode(index)"
-                >
-                  <p
-                    class="truncate"
-                  >
-                    Save an Image
-                  </p>
-                </div>
-                <div
-                  class="text-white font-bold text-md rounded-full h-10 w-auto p-3 bg-gray-900 flex items-center justify-center cursor-pointer mb-4"
-                  @click="deleteQrcode(index)"
-                >
-                  <p
-                    class="truncate"
-                  >
-                    Delete
-                  </p>
-                </div>
-              </div>
-            </div>
+              </template>
+            </dynamic-scroller>
           </template>
           <template
             v-else
@@ -201,13 +213,14 @@ interface ShareData {
   data () {
     return {
       displayingList: [],
-      busy: false
+      busy: false,
+      firstInit: true
     }
   },
   watch: {
     async 'info.show' (val) {
       this.busy = true
-      if (val) {
+      if (val && this.firstInit) {
         this.displayingList = (this.info as IGeneratingHistoryDetailCard).historyList.map((value: IQrCodeHistory): IQrCodeHistory & IActionBlock & IHtmlBlock => {
           return {
             ...value,
@@ -224,8 +237,35 @@ interface ShareData {
           this.displayingList[index].html.svg = await this.qrCode.pGetSVGElementQrcode(this.displayingList[index].data)
           this.displayingList[index].action.isAbleToShareQrcode = this.utils.canShare(await this.getQrcodeShareObject(this.displayingList[index].data))
         }
+        this.firstInit = false
       } else {
         this.displayingList = []
+      }
+      this.busy = false
+    },
+    async 'info.historyList' (val) {
+      this.busy = true
+      if (val.length > 0 && !this.firstInit) {
+        const currentIndex = this.displayingList.length
+        for (let index = currentIndex; index < (this.info as IGeneratingHistoryDetailCard).historyList.length; index++) {
+          this.displayingList.push(
+            {
+              ...(this.info as IGeneratingHistoryDetailCard).historyList[index],
+              action: {
+                show: false,
+                isAbleToShareQrcode: false
+              },
+              html: {
+                svg: ''
+              }
+            }
+          )
+        }
+        for (let index = currentIndex; index < this.displayingList.length; index++) {
+          this.displayingList[index].html.svg = await this.qrCode.pGetSVGElementQrcode(this.displayingList[index].data)
+          this.displayingList[index].action.isAbleToShareQrcode = this.utils.canShare(await this.getQrcodeShareObject(this.displayingList[index].data))
+        }
+        this.$refs.scroller.onScrollerResize()
       }
       this.busy = false
     }
@@ -234,6 +274,7 @@ interface ShareData {
     close () {
       this.info.historyList = []
       this.info.show = false
+      this.firstInit = true
     },
     toggleShowAction (value: IQrCodeHistory & IActionBlock) {
       value.action.show = !value.action.show

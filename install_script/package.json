@@ -1,0 +1,9 @@
+{
+  "name": "install_script",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "fs-extra": "^11.1.0"
+  }
+}

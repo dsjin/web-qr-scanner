@@ -5,6 +5,7 @@ export interface IUseScanningQrCodeObjectStore {
   writeScanningQrCodeItem: (qrCodeItem: IQrCodeHistory) => void
   getAllScanningQrCode: () => Promise<Array<IQrCodeHistory>>
   deleteScanningQrCodeItem: (id: number) => Promise<undefined>
+  getScanningQrCode: (start?: number, limit?: number) => Promise<Array<IQrCodeHistory>>
 }
 
 export default function useScanningQrCodeObjectStore (db: Ref<IDBDatabase | null>): IUseScanningQrCodeObjectStore {
@@ -42,10 +43,42 @@ export default function useScanningQrCodeObjectStore (db: Ref<IDBDatabase | null
       }
     })
   }
+  const getScanningQrCode = (start = 0, limit = 10): Promise<Array<IQrCodeHistory>> => {
+    return new Promise((resolve, reject) => {
+      const qrcodeHistoryList: Array<IQrCodeHistory> = []
+      const scanningQrCodeObjectStore = db.value?.transaction('qrcode_histories', 'readonly').objectStore('qrcode_histories')
+      const gettingOpenCursor = scanningQrCodeObjectStore?.openCursor()
+      let hasSkipped = false
+      if (gettingOpenCursor) {
+        gettingOpenCursor.onsuccess = (ev: any) => {
+          const cursor = ev.target.result
+          if (cursor) {
+            if (!hasSkipped && start > 0) {
+              hasSkipped = true
+              cursor.advance(start)
+              return
+            }
+            qrcodeHistoryList.push(
+              cursor.value
+            )
+            if (qrcodeHistoryList.length < limit) {
+              cursor.continue()
+            } else {
+              resolve(qrcodeHistoryList)
+            }
+          } else {
+            resolve(qrcodeHistoryList)
+          }
+        }
+      } else {
+        reject(new Error('DB is not ready.'))
+      }
+    })
+  }
   const getAllScanningQrCode = (): Promise<Array<IQrCodeHistory>> => {
     return new Promise((resolve, reject) => {
       const qrcodeHistoryList: Array<IQrCodeHistory> = []
-      const scanningQrCodeObjectStore = db.value?.transaction('qrcode_histories', 'readwrite').objectStore('qrcode_histories')
+      const scanningQrCodeObjectStore = db.value?.transaction('qrcode_histories', 'readonly').objectStore('qrcode_histories')
       const gettingAll = scanningQrCodeObjectStore?.getAll()
       if (gettingAll) {
         gettingAll.onsuccess = (ev: any) => {
@@ -65,6 +98,7 @@ export default function useScanningQrCodeObjectStore (db: Ref<IDBDatabase | null
   return {
     writeScanningQrCodeItem,
     getAllScanningQrCode,
-    deleteScanningQrCodeItem
+    deleteScanningQrCodeItem,
+    getScanningQrCode
   }
 }
