@@ -23,8 +23,8 @@ QR Code Scanner Website made with the Vue.js Framework
 ### Additional Tasks
 
 - [X] Scanning functionality & UI > Result display ui > Deleting Item
-- [ ] Add virtual list -> ongoing
-- [ ] Add limit of the lists -> ongoing
+- [X] Add virtual list
+- [X] Add limit of the lists
 
 ...TBD
 
