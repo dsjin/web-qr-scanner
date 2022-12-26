@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="info.show"
-    class="absolute top-0 left-0 right-0 bg-gradient-to-r from-yellow-400 via-red-500 to-pink-500 min-h-screen z-30"
+    class="absolute top-0 left-0 right-0 bg-gradient-to-r from-yellow-400 via-red-500 to-pink-500 min-h-screen h-screen z-30 overflow-hidden"
   >
     <div
       class="absolute right-4 top-4 text-white font-bold text-md rounded-full h-10 w-10 bg-gray-900 flex items-center justify-center cursor-pointer z-40"
@@ -17,19 +17,42 @@
       >
         Camera
       </h1>
-      <div class="p-5 md:p-10 bg-gray-500 text-2xl text-white my-10 md:my-20 h-1/2">
+      <div
+        class="p-5 md:p-10 bg-gray-500 text-2xl text-white my-10 md:my-20"
+        :class="{'h-[calc(100vh-10rem)] md:h-[calc(100vh-16rem)]': info.deviceList.length > 0}"
+      >
         <template
           v-if="info.deviceList.length > 0"
         >
-          <div
-            v-for="device, index in info.deviceList"
-            :key="device.deviceId"
-            class="p-4 w-full rounded-full cursor-pointer truncate"
-            :class="{'bg-red-400': device.deviceId !== info.nextSelectedDeviceId, 'bg-red-600': device.deviceId === info.nextSelectedDeviceId, 'mb-4': index !== info.deviceList.length - 1}"
-            @click="selectCamera(device.deviceId)"
+          <dynamic-scroller
+            :items="info.deviceList"
+            :min-item-size="100"
+            keyField="deviceId"
+            class="h-full"
           >
-            {{ device.label }}
-          </div>
+            <template v-slot="{ item: device, index, active }">
+              <dynamic-scroller-item
+                :item="device"
+                :active="active"
+                :size-dependencies="[
+                  device.label
+                ]"
+                :data-index="index"
+              >
+                <div
+                  class="wrapper pb-5"
+                >
+                  <div
+                    class="p-4 w-full rounded-full cursor-pointer truncate"
+                    :class="{'bg-red-400': device.deviceId !== info.nextSelectedDeviceId, 'bg-red-600': device.deviceId === info.nextSelectedDeviceId}"
+                    @click="selectCamera(device.deviceId)"
+                  >
+                    {{ device.label }}
+                  </div>
+                </div>
+              </dynamic-scroller-item>
+            </template>
+          </dynamic-scroller>
         </template>
         <template
           v-else
