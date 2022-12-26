@@ -17,11 +17,6 @@
       >
         History
       </h1>
-      <button
-        @click="$emit('fetch-data')"
-      >
-        Add Data
-      </button>
       <div
         class="relative p-5 md:p-10 bg-gray-500 text-2xl text-white my-10 md:my-20"
         :class="{'h-[calc(100vh-10rem)] md:h-[calc(100vh-16rem)]': !firstInit && displayingList.length > 0}"
@@ -150,6 +145,18 @@
                   </div>
                 </dynamic-scroller-item>
               </template>
+              <template #after>
+                <div
+                  class="w-full px-0 md:px-10"
+                >
+                  <button
+                    class="text-white font-bold text-md rounded-full h-10 w-full bg-gray-900 flex items-center justify-center cursor-pointer"
+                    @click="$emit('fetch-data')"
+                  >
+                    Load more
+                  </button>
+                </div>
+              </template>
             </dynamic-scroller>
           </template>
           <template
@@ -258,7 +265,6 @@ interface ShareData {
           this.displayingList[index].html.svg = await this.qrCode.pGetSVGElementQrcode(this.displayingList[index].data)
           this.displayingList[index].action.isAbleToShareQrcode = this.utils.canShare(await this.getQrcodeShareObject(this.displayingList[index].data))
         }
-        console.log(this.$refs.scroller)
         this.$refs.scroller.onScrollerResize()
       }
       this.busy = false
@@ -317,12 +323,6 @@ interface ShareData {
         this.emitter.emit('$alert-popup:bgColor', 'bg-red-500')
         this.emitter.emit('$alert-popup:timeout', 3000)
         this.emitter.emit('$alert-popup:show')
-      }
-    },
-    async onScroll (e: any) {
-      const { scrollTop, offsetHeight, scrollHeight } = e.target
-      if ((scrollTop + offsetHeight) >= scrollHeight) {
-        this.$emit('fetch-data')
       }
     }
   }

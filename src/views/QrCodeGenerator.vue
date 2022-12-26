@@ -283,6 +283,11 @@ const useQrCodeGenerator = (utils: IUseUtils, qrCode: IUseQrCode, generatingQrCo
           ...this.historyInfo.historyList,
           ...data
         ]
+      } else {
+        this.emitter.emit('$alert-popup:msg', 'No more items in database')
+        this.emitter.emit('$alert-popup:bgColor', 'bg-yellow-500')
+        this.emitter.emit('$alert-popup:timeout', 3000)
+        this.emitter.emit('$alert-popup:show')
       }
     }
   }
