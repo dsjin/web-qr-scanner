@@ -26,6 +26,7 @@
     />
     <history-detail-card
       :info="historyInfo"
+      @fetch-data="getHistory"
     />
     <select-camera-card
       :info="selectCameraInfo"
@@ -144,7 +145,7 @@ const useHome = (camera: IUseCamera) => {
     async historyOpen () {
       try {
         this.qrCode.qrInfo.loop = false
-        this.historyInfo.historyList = await this.scanningQrCodeObjectStore.getAllScanningQrCode()
+        await this.getHistory()
         this.historyInfo.show = true
       } catch (e: any) {
         this.qrCode.qrInfo.loop = true
@@ -161,6 +162,23 @@ const useHome = (camera: IUseCamera) => {
       this.selectCameraInfo.selectedDeviceId = this.camera.cameraInfo.selectedDevice
       this.selectCameraInfo.nextSelectedDeviceId = this.camera.cameraInfo.selectedDevice
       this.selectCameraInfo.show = true
+    },
+    async getHistory () {
+      const data = await this.scanningQrCodeObjectStore.getScanningQrCode(
+        this.historyInfo.historyList.length > 0 ? this.historyInfo.historyList.length : 0
+      )
+
+      if (data.length > 0) {
+        this.historyInfo.historyList = [
+          ...this.historyInfo.historyList,
+          ...data
+        ]
+      } else {
+        this.emitter.emit('$alert-popup:msg', 'No more items in database')
+        this.emitter.emit('$alert-popup:bgColor', 'bg-yellow-500')
+        this.emitter.emit('$alert-popup:timeout', 3000)
+        this.emitter.emit('$alert-popup:show')
+      }
     }
   }
 })

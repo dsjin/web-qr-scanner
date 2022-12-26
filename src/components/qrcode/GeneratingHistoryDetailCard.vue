@@ -34,7 +34,7 @@
           v-else
         >
           <template
-            v-if="displayingList.length != 0"
+            v-if="displayingList.length !== 0"
           >
             <div
               class="flex justify-center items-center w-full h-full absolute left-0 top-0 bg-gray-500 bg-opacity-70 z-20"
