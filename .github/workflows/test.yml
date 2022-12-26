@@ -19,6 +19,8 @@ jobs:
         with:
           node-version: '16.17.0'
           check-latest: true
+      - name: Install global pnpm
+        run: npm -g install pnpm
       - name: Install npm Dependencies
         run: yarn install:custom
       - name: Run tests with jest
