@@ -145,7 +145,7 @@ const useHome = (camera: IUseCamera) => {
     async historyOpen () {
       try {
         this.qrCode.qrInfo.loop = false
-        await this.getHistory()
+        await this.getHistory(true)
         this.historyInfo.show = true
       } catch (e: any) {
         this.qrCode.qrInfo.loop = true
@@ -163,7 +163,7 @@ const useHome = (camera: IUseCamera) => {
       this.selectCameraInfo.nextSelectedDeviceId = this.camera.cameraInfo.selectedDevice
       this.selectCameraInfo.show = true
     },
-    async getHistory () {
+    async getHistory (firstInit = false) {
       const data = await this.scanningQrCodeObjectStore.getScanningQrCode(
         this.historyInfo.historyList.length > 0 ? this.historyInfo.historyList.length : 0
       )
@@ -173,7 +173,7 @@ const useHome = (camera: IUseCamera) => {
           ...this.historyInfo.historyList,
           ...data
         ]
-      } else {
+      } else if (!firstInit) {
         this.emitter.emit('$alert-popup:msg', 'No more items in database')
         this.emitter.emit('$alert-popup:bgColor', 'bg-yellow-500')
         this.emitter.emit('$alert-popup:timeout', 3000)

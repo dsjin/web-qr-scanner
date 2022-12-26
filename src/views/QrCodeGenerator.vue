@@ -264,7 +264,7 @@ const useQrCodeGenerator = (utils: IUseUtils, qrCode: IUseQrCode, generatingQrCo
     async openHistory () {
       try {
         this.historyInfo.historyList = []
-        await this.getHistory()
+        await this.getHistory(true)
         this.historyInfo.show = true
       } catch (e: any) {
         this.emitter.emit('$alert-popup:msg', e.message)
@@ -273,7 +273,7 @@ const useQrCodeGenerator = (utils: IUseUtils, qrCode: IUseQrCode, generatingQrCo
         this.emitter.emit('$alert-popup:show')
       }
     },
-    async getHistory () {
+    async getHistory (firstInit = false) {
       const data = await this.generatingQrCodeObjectStore.getGeneratingQrCode(
         this.historyInfo.historyList.length > 0 ? this.historyInfo.historyList.length : 0
       )
@@ -283,7 +283,7 @@ const useQrCodeGenerator = (utils: IUseUtils, qrCode: IUseQrCode, generatingQrCo
           ...this.historyInfo.historyList,
           ...data
         ]
-      } else {
+      } else if (!firstInit) {
         this.emitter.emit('$alert-popup:msg', 'No more items in database')
         this.emitter.emit('$alert-popup:bgColor', 'bg-yellow-500')
         this.emitter.emit('$alert-popup:timeout', 3000)
