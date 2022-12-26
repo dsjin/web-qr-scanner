@@ -8,14 +8,14 @@
       <router-link
         to="/"
         class="px-5 w-full md:w-min border-r-2 cursor-pointer"
-        :class="{'text-gray-400': isActive('Home')}"
+        :class="{'text-gray-400': !isActive('Home')}"
       >
         Scanner
       </router-link>
       <router-link
         to="/generator"
         class="px-5 w-full md:w-min cursor-pointer"
-        :class="{'text-gray-400': isActive('QrCodeGenerator')}"
+        :class="{'text-gray-400': !isActive('QrCodeGenerator')}"
       >
         Generator
       </router-link>
