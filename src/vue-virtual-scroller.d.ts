@@ -1,8 +1,8 @@
 declare module "vue-virtual-scroller" {
   import Vue, { ComponentOptions, PluginObject, Component } from "vue";
   interface PluginOptions {
-      installComponents?: boolean;
-      componentsPrefix?: string;
+    installComponents?: boolean;
+    componentsPrefix?: string;
   }
 
   const plugin: PluginObject<PluginOptions> & { version: string };
@@ -12,7 +12,7 @@ declare module "vue-virtual-scroller" {
   export const DynamicScrollerItem: Component<any, any, any, any>;
 
   export function IdState(options?: {
-      idProp?: (vm: any) => any;
+    idProp?: (vm: any) => any;
   }): ComponentOptions<Vue> | typeof Vue;
 
   export default plugin;

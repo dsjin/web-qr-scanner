@@ -19,8 +19,8 @@
     "vue": "^3.0.0",
     "vue-class-component": "^8.0.0-0",
     "vue-router": "^4.0.0-0",
-    "vuex": "^4.0.0-0",
-    "vue-virtual-scroller": "./external_lib/vue-virtual-scroller-source/vue-virtual-scroller"
+    "vue-virtual-scroller": "^2.0.0-beta.7",
+    "vuex": "^4.0.0-0"
   },
   "devDependencies": {
     "@types/jest": "^29.2.2",
