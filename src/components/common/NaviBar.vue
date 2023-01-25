@@ -23,7 +23,8 @@
     <div
       ref="popupWrap"
       class="relative left-42 md:left-36 order-first rounded-full w-10 h-10 text-white font-bold p-2 bg-gray-900 mb-5 md:ml-5 ml-auto md:mr-0 mr-5 z-15 cursor-pointer"
-      @click="popup.show = !popup.show"
+      :class="{'cursor-not-allowed bg-gray-600': !popup.containerShow}"
+      @click="() => {if (popup.containerShow) popup.show = !popup.show }"
     >
       <template
         v-if="!popup.show"
@@ -54,8 +55,9 @@
 </template>
 
 <script lang="ts">
-import { Ref, ref } from 'vue'
+import { Ref, ref, watch } from 'vue'
 import { Vue, Options } from 'vue-class-component'
+import { useRoute } from 'vue-router'
 
 interface IMenu {
   label: string
@@ -63,19 +65,32 @@ interface IMenu {
 }
 
 const usePopupMenu = () => {
+  const route = useRoute()
   const show : Ref<boolean> = ref(false)
+  const containerShow : Ref<boolean> = ref(true)
   const menus : Ref<IMenu[]> = ref([])
-  menus.value.push(
-    {
-      label: 'Upload Image',
-      cb () {
-        console.log('test')
-      }
+  watch(route, (newRoute) => {
+    if (newRoute.name === 'Home') {
+      show.value = false
+      containerShow.value = true
+      menus.value.push(
+        {
+          label: 'Upload Image',
+          cb () {
+            console.log('test')
+          }
+        }
+      )
+    } else {
+      show.value = false
+      containerShow.value = false
+      menus.value = []
     }
-  )
+  })
   return {
     show,
-    menus
+    menus,
+    containerShow
   }
 }
 
@@ -90,11 +105,24 @@ const usePopupMenu = () => {
       }
     }
   },
+  watch: {
+    'popup.containerShow' (value: boolean) {
+      if (value) {
+        document.addEventListener('click', this.close)
+      } else {
+        document.removeEventListener('click', this.close)
+      }
+    }
+  },
   mounted () {
-    document.addEventListener('click', this.close)
+    if (this.popup.containerShow) {
+      document.addEventListener('click', this.close)
+    }
   },
   beforeDestroy () {
-    document.removeEventListener('click', this.close)
+    if (this.popup.containerShow) {
+      document.removeEventListener('click', this.close)
+    }
   }
 })
 
