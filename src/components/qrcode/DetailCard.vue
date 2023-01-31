@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="info.show"
-    class="absolute inset-0 bg-gradient-to-r from-yellow-400 via-red-500 to-pink-500"
+    class="absolute inset-0 bg-gradient-to-r from-yellow-400 via-red-500 to-pink-500 z-30"
   >
     <div
       class="absolute right-4 top-4 text-white font-bold text-md rounded-full h-10 w-10 bg-gray-900 flex items-center justify-center cursor-pointer z-10"
