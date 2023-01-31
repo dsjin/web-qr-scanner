@@ -25,6 +25,8 @@ QR Code Scanner Website made with the Vue.js Framework
 - [X] Scanning functionality & UI > Result display ui > Deleting Item
 - [X] Add virtual list
 - [X] Add limit of the lists
+- [X] Upload a file
+- [ ] Export Database and store locally or online
 
 ...TBD
 
