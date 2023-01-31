@@ -33,6 +33,7 @@
       @on-change-camera="camera.changeCameraByDeviceId"
     />
   </div>
+  <upload-popup />
 </template>
 
 <script lang="ts">
@@ -44,6 +45,7 @@ import useQrCode from '@/composables/useQrCode'
 import useIndexedDb from '@/composables/useIndexedDb'
 import useScanningQrCodeObjectStore from '@/composables/useScanningQrCodeObjectStore'
 import DetailCard from '@/components/qrcode/DetailCard.vue'
+import UploadPopup from '@/components/qrcode/UploadPopup.vue'
 import HistoryDetailCard from '@/components/qrcode/HistoryDetailCard.vue'
 import SelectCameraCard from '@/components/qrcode/SelectCameraCard.vue'
 
@@ -70,7 +72,8 @@ const useHome = (camera: IUseCamera) => {
   components: {
     DetailCard,
     HistoryDetailCard,
-    SelectCameraCard
+    SelectCameraCard,
+    UploadPopup
   },
   data () {
     return {

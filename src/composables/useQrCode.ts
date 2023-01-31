@@ -1,7 +1,8 @@
 import jsQR from 'jsqr'
-import { ref, Ref } from 'vue'
+import { ref, Ref, onMounted, onUnmounted } from 'vue'
 import QRcode, { QRCodeOptions, QRCodeToDataURLOptions, QRCodeToStringOptions } from 'qrcode'
 import { IUseScanningQrCodeObjectStore } from './useScanningQrCodeObjectStore'
+import useEmitter from './useEmitter'
 
 export interface IQrCodeHistory {
   id?: number
@@ -29,29 +30,33 @@ export interface IUseQrCode {
 }
 
 export default function useQrCode (video?: Ref<HTMLVideoElement | null>, scanningQrCodeObjectStore?: IUseScanningQrCodeObjectStore) : IUseQrCode {
+  const emitter = useEmitter()
   const currentRawValue: Ref<string | null> = ref(null)
   const canvas: Ref<HTMLCanvasElement> = ref(document.createElement('canvas'))
   const loop: Ref<boolean> = ref(true)
+  const checkQr = (sourceData: any, w: number, h: number) => {
+    const context = canvas.value.getContext('2d')
+    canvas.value.width = w
+    canvas.value.height = h
+    context?.drawImage(sourceData, 0, 0, w, h)
+    const data = context?.getImageData(0, 0, w, h)
+    if (data) {
+      const code = jsQR(data.data, w, h)
+      if (code && code.data) {
+        currentRawValue.value = code.data
+        scanningQrCodeObjectStore?.writeScanningQrCodeItem(
+          {
+            data: code.data,
+            timestamp: new Date().getTime()
+          }
+        )
+        loop.value = false
+      }
+    }
+  }
   const scannerLoop = () => {
     if (video?.value) {
-      const context = canvas.value.getContext('2d')
-      canvas.value.width = 800
-      canvas.value.height = 600
-      context?.drawImage(video.value, 0, 0, 800, 600)
-      const data = context?.getImageData(0, 0, 800, 600)
-      if (data) {
-        const code = jsQR(data.data, 800, 600)
-        if (code && code.data) {
-          currentRawValue.value = code.data
-          scanningQrCodeObjectStore?.writeScanningQrCodeItem(
-            {
-              data: code.data,
-              timestamp: new Date().getTime()
-            }
-          )
-          loop.value = false
-        }
-      }
+      checkQr(video.value, 800, 600)
     }
     if (loop.value) {
       window.requestAnimationFrame(scannerLoop)
@@ -115,6 +120,22 @@ export default function useQrCode (video?: Ref<HTMLVideoElement | null>, scannin
       }
     })
   }
+  onMounted(() => {
+    emitter.on('$qrcode:check-image-file', async (imageFile: any) => {
+      try {
+        const bmp = await createImageBitmap(imageFile)
+        checkQr(bmp, bmp.width, bmp.height)
+      } catch (e) {
+        emitter.emit('$alert-popup:msg', 'Error to open the file')
+        emitter.emit('$alert-popup:bgColor', 'bg-red-500')
+        emitter.emit('$alert-popup:timeout', 3000)
+        emitter.emit('$alert-popup:show')
+      }
+    })
+  })
+  onUnmounted(() => {
+    emitter.off('$qrcode:check-image-file')
+  })
   return {
     qrInfo: {
       currentRawValue,
