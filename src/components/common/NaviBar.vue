@@ -58,13 +58,15 @@
 import { Ref, ref, watch } from 'vue'
 import { Vue, Options } from 'vue-class-component'
 import { useRoute } from 'vue-router'
+import useEmitter from '@/composables/useEmitter'
+import { Emitter, EventType } from 'mitt'
 
 interface IMenu {
   label: string
   cb: any
 }
 
-const usePopupMenu = () => {
+const usePopupMenu = (emitter: Emitter<Record<EventType, unknown>>) => {
   const route = useRoute()
   const show : Ref<boolean> = ref(false)
   const containerShow : Ref<boolean> = ref(true)
@@ -77,7 +79,7 @@ const usePopupMenu = () => {
         {
           label: 'Upload Image',
           cb () {
-            console.log('test')
+            emitter.emit('$upload-popup:open')
           }
         }
       )
@@ -127,6 +129,7 @@ const usePopupMenu = () => {
 })
 
 export default class NaviBar extends Vue {
-  popup = usePopupMenu()
+  emitter = useEmitter()
+  popup = usePopupMenu(this.emitter)
 }
 </script>
