@@ -27,6 +27,7 @@ export default function useCamera () : IUseCamera {
           video: true
         }
       )
+      stopTracks()
       // Get All of Video Type Devices
       devices.value = (await navigator.mediaDevices.enumerateDevices()).filter((device: MediaDeviceInfo) => {
         return device.kind === 'videoinput'
