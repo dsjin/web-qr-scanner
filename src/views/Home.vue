@@ -98,7 +98,7 @@ const useHome = (camera: IUseCamera) => {
   watch: {
     'camera.cameraInfo.error' (value) {
       if (value) {
-        this.emitter.emit('$alert-popup:msg', 'Failed to initialize the camera.')
+        this.emitter.emit('$alert-popup:msg', value)
         this.emitter.emit('$alert-popup:bgColor', 'bg-red-500')
         this.emitter.emit('$alert-popup:timeout', 0)
         this.emitter.emit('$alert-popup:show')
