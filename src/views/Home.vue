@@ -21,7 +21,7 @@
         </p>
       </div>
     </div>
-    <div class="absolute right-4 bottom-4 text-white z-9">
+    <div class="absolute right-4 top-0 text-white z-9">
       selectedDeviceId: {{ selectCameraInfo.selectedDeviceId }}
     </div>
     <detail-card
