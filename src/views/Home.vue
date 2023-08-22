@@ -21,6 +21,9 @@
         </p>
       </div>
     </div>
+    <div class="absolute right-4 bottom-4 text-white">
+      {{ this.selectCameraInfo.selectedDeviceId }}
+    </div>
     <detail-card
       :info="detailInfo"
     />
